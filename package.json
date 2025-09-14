@@ -1,0 +1,40 @@
+{
+  "name": "cutplanner",
+  "version": "0.1.0",
+  "description": "A cutting optimization and planning application for efficient material usage",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**/*.{ts,tsx}",
+    "lint:fix": "eslint src/**/*.{ts,tsx} --fix",
+    "format": "prettier --write src/**/*.{ts,tsx,json,md}"
+  },
+  "keywords": [
+    "cutting",
+    "optimization",
+    "material",
+    "planning",
+    "manufacturing",
+    "woodworking",
+    "waste-reduction"
+  ],
+  "author": "LunaDeerTech",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0",
+    "prettier": "^3.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
