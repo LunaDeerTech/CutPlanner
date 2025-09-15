@@ -49,7 +49,7 @@
           @change="updateAllowRotation"
           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         >
-          <option value="false">不允许旋转-始终顺着木纹裁板</option>
+          <option value="false">不允许旋转-始终按长度方向顺着木纹裁板</option>
           <option value="true">允许旋转-相邻的两块板可能存在交错</option>
         </select>
       </div>
