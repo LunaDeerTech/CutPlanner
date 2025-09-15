@@ -95,9 +95,22 @@
             <h5 class="text-lg font-medium text-gray-900 mb-3">
               料板 {{ index + 1 }} - {{ getMaterialName(result.materialId) }}
               <span class="text-sm font-normal text-gray-500 ml-2">
-                (利用率: {{ (100 - result.wastePercentage).toFixed(1) }}%)
+                (利用率: {{ (100 - result.wastePercentage).toFixed(1) }}%, 切割件: {{ result.cuts.length }})
               </span>
             </h5>
+            
+            <!-- 调试信息 -->
+            <div class="text-xs text-gray-400 mb-4 p-3 bg-gray-50 rounded" v-if="true">
+              <div><strong>调试信息:</strong></div>
+              <div>• 材料ID: {{ result.materialId }}</div>
+              <div>• 切割件数: {{ result.cuts.length }}</div>
+              <div>• SVG尺寸: {{ getSvgWidth(result.materialId) }}×{{ getSvgHeight(result.materialId) }}</div>
+              <div>• 缩放比例: {{ getScaleFactor(result.materialId).toFixed(4) }}</div>
+              <div>• 材料数据: {{ props.materials?.find(m => m.id === result.materialId) ? '✓找到' : '✗未找到' }}</div>
+              <div v-if="result.cuts.length > 0">
+                • 第一个切割件: {{ result.cuts[0].x }},{{ result.cuts[0].y }} {{ result.cuts[0].width }}×{{ result.cuts[0].height }}
+              </div>
+            </div>
             
             <!-- SVG 切割示意图 -->
             <div class="border border-gray-200 rounded bg-white overflow-auto">
@@ -122,10 +135,10 @@
                 <g v-for="(cut, cutIndex) in result.cuts" :key="cut.id">
                   <!-- 切割件矩形 -->
                   <rect
-                    :x="scaleCoordinate(cut.x)"
-                    :y="scaleCoordinate(cut.y)"
-                    :width="scaleDimension(cut.width)"
-                    :height="scaleDimension(cut.height)"
+                    :x="scaleCoordinate(cut.x, result.materialId)"
+                    :y="scaleCoordinate(cut.y, result.materialId)"
+                    :width="scaleDimension(cut.width, result.materialId)"
+                    :height="scaleDimension(cut.height, result.materialId)"
                     :fill="getCutColor(cutIndex)"
                     :stroke="getCutBorderColor(cutIndex)"
                     stroke-width="1"
@@ -134,8 +147,8 @@
                   
                   <!-- 切割件标签 -->
                   <text
-                    :x="scaleCoordinate(cut.x) + scaleDimension(cut.width) / 2"
-                    :y="scaleCoordinate(cut.y) + scaleDimension(cut.height) / 2"
+                    :x="scaleCoordinate(cut.x, result.materialId) + scaleDimension(cut.width, result.materialId) / 2"
+                    :y="scaleCoordinate(cut.y, result.materialId) + scaleDimension(cut.height, result.materialId) / 2"
                     text-anchor="middle"
                     dominant-baseline="middle"
                     class="text-xs font-medium"
@@ -146,8 +159,8 @@
                   
                   <!-- 尺寸标注 -->
                   <text
-                    :x="scaleCoordinate(cut.x) + scaleDimension(cut.width) / 2"
-                    :y="scaleCoordinate(cut.y) + scaleDimension(cut.height) / 2 + 12"
+                    :x="scaleCoordinate(cut.x, result.materialId) + scaleDimension(cut.width, result.materialId) / 2"
+                    :y="scaleCoordinate(cut.y, result.materialId) + scaleDimension(cut.height, result.materialId) / 2 + 12"
                     text-anchor="middle"
                     class="text-xs"
                     fill="#6b7280"
@@ -229,40 +242,102 @@ const exportReport = () => {
 }
 
 // SVG 相关计算
-const SVG_SCALE = 0.3 // 缩放比例，将实际尺寸缩放到合适的显示大小
-const MIN_SVG_SIZE = 200
-const MAX_SVG_SIZE = 600
+const MIN_SVG_SIZE = 300
+const MAX_SVG_SIZE = 800
+const PREFERRED_SVG_WIDTH = 600 // 期望的SVG宽度
 
 const getSvgWidth = (materialId: string): number => {
-  const material = props.materials?.find(m => m.id === materialId)
+  const material = findMaterialByResultId(materialId)
   if (!material) return MIN_SVG_SIZE
-  const scaledWidth = material.width * SVG_SCALE
-  return Math.min(Math.max(scaledWidth, MIN_SVG_SIZE), MAX_SVG_SIZE)
+  
+  // 根据材料的宽高比来决定显示尺寸
+  const aspectRatio = material.width / material.height
+  
+  if (aspectRatio >= 1) {
+    // 宽度更大，以宽度为准
+    return Math.min(Math.max(PREFERRED_SVG_WIDTH, MIN_SVG_SIZE), MAX_SVG_SIZE)
+  } else {
+    // 高度更大，根据比例计算宽度
+    const height = Math.min(Math.max(PREFERRED_SVG_WIDTH, MIN_SVG_SIZE), MAX_SVG_SIZE)
+    return height * aspectRatio
+  }
 }
 
 const getSvgHeight = (materialId: string): number => {
-  const material = props.materials?.find(m => m.id === materialId)
+  const material = findMaterialByResultId(materialId)
   if (!material) return MIN_SVG_SIZE
-  const scaledHeight = material.height * SVG_SCALE
-  return Math.min(Math.max(scaledHeight, MIN_SVG_SIZE), MAX_SVG_SIZE)
+  
+  // 根据材料的宽高比来决定显示尺寸
+  const aspectRatio = material.width / material.height
+  
+  if (aspectRatio >= 1) {
+    // 宽度更大，根据比例计算高度
+    const width = Math.min(Math.max(PREFERRED_SVG_WIDTH, MIN_SVG_SIZE), MAX_SVG_SIZE)
+    return width / aspectRatio
+  } else {
+    // 高度更大，以高度为准
+    return Math.min(Math.max(PREFERRED_SVG_WIDTH, MIN_SVG_SIZE), MAX_SVG_SIZE)
+  }
 }
 
-const scaleCoordinate = (coordinate: number): number => {
-  return coordinate * SVG_SCALE
+const getScaleFactor = (materialId: string): number => {
+  const material = findMaterialByResultId(materialId)
+  if (!material) {
+    console.warn('找不到材料，使用默认缩放:', materialId)
+    return 0.5 // 默认缩放比例
+  }
+  
+  const svgWidth = getSvgWidth(materialId)
+  const scaleFactor = svgWidth / material.width
+  
+  console.log(`材料 ${materialId} 缩放信息:`, {
+    materialWidth: material.width,
+    materialHeight: material.height,
+    svgWidth: svgWidth,
+    svgHeight: getSvgHeight(materialId),
+    scaleFactor: scaleFactor
+  })
+  
+  return scaleFactor
 }
 
-const scaleDimension = (dimension: number): number => {
-  return dimension * SVG_SCALE
+const scaleCoordinate = (coordinate: number, materialId: string): number => {
+  return coordinate * getScaleFactor(materialId)
+}
+
+const scaleDimension = (dimension: number, materialId: string): number => {
+  return dimension * getScaleFactor(materialId)
+}
+
+const findMaterialByResultId = (materialId: string): Material | undefined => {
+  if (!props.materials) return undefined
+  
+  // 首先尝试精确匹配
+  let material = props.materials.find(m => m.id === materialId)
+  if (material) return material
+  
+  // 如果没找到，尝试匹配原始ID（去掉_sheet_X后缀）
+  const originalId = materialId.replace(/_sheet_\d+$/, '')
+  material = props.materials.find(m => m.id === originalId)
+  
+  return material
 }
 
 const getMaterialName = (materialId: string): string => {
-  const material = props.materials?.find(m => m.id === materialId)
+  const material = findMaterialByResultId(materialId)
+  
+  // 调试信息
+  console.log('查找材料:', materialId, '找到:', material?.name)
+  
   return material?.name || `材料 ${materialId}`
 }
 
 const getMaterialDimensions = (materialId: string): string => {
-  const material = props.materials?.find(m => m.id === materialId)
-  if (!material) return ''
+  const material = findMaterialByResultId(materialId)
+  if (!material) {
+    console.log('找不到材料尺寸:', materialId)
+    return ''
+  }
   return `${material.width} × ${material.height} mm`
 }
 
