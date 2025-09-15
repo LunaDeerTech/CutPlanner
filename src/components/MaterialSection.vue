@@ -14,7 +14,7 @@
     </div>
     
     <!-- 原料列表 -->
-    <div v-if="materialStore.materials.length > 0" class="space-y-3">
+    <div v-if="materialStore.materials.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
       <div
         v-for="material in materialStore.materials"
         :key="material.id"
