@@ -47,23 +47,130 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
           <tr v-for="item in cuttingItems" :key="item.id">
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.name || '未命名' }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.width }}{{ settingsStore.settings.unit }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.height }}{{ settingsStore.settings.unit }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.quantity }}</td>
+            <!-- 名称列 -->
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div v-if="editingItem?.id === item.id">
+                <input
+                  v-model="editForm.name"
+                  type="text"
+                  placeholder="项目名称"
+                  class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  @keydown.enter="saveEdit"
+                  @keydown.escape="cancelEdit"
+                />
+              </div>
+              <div v-else class="text-sm font-medium text-gray-900">
+                {{ item.name || '未命名' }}
+              </div>
+            </td>
+
+            <!-- 长度列 -->
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div v-if="editingItem?.id === item.id">
+                <div class="flex items-center">
+                  <input
+                    v-model="editForm.width"
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    class="w-20 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    :class="editErrors.width ? 'border-red-500' : 'border-gray-300'"
+                    @keydown.enter="saveEdit"
+                    @keydown.escape="cancelEdit"
+                    @blur="validateEditField('width')"
+                  />
+                  <span class="ml-1 text-sm text-gray-500">{{ settingsStore.settings.unit }}</span>
+                </div>
+                <p v-if="editErrors.width" class="mt-1 text-xs text-red-600">{{ editErrors.width }}</p>
+              </div>
+              <div v-else class="text-sm text-gray-900">
+                {{ item.width }}{{ settingsStore.settings.unit }}
+              </div>
+            </td>
+
+            <!-- 宽度列 -->
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div v-if="editingItem?.id === item.id">
+                <div class="flex items-center">
+                  <input
+                    v-model="editForm.height"
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    class="w-20 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    :class="editErrors.height ? 'border-red-500' : 'border-gray-300'"
+                    @keydown.enter="saveEdit"
+                    @keydown.escape="cancelEdit"
+                    @blur="validateEditField('height')"
+                  />
+                  <span class="ml-1 text-sm text-gray-500">{{ settingsStore.settings.unit }}</span>
+                </div>
+                <p v-if="editErrors.height" class="mt-1 text-xs text-red-600">{{ editErrors.height }}</p>
+              </div>
+              <div v-else class="text-sm text-gray-900">
+                {{ item.height }}{{ settingsStore.settings.unit }}
+              </div>
+            </td>
+
+            <!-- 数量列 -->
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div v-if="editingItem?.id === item.id">
+                <div>
+                  <input
+                    v-model="editForm.quantity"
+                    type="number"
+                    min="1"
+                    class="w-16 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    :class="editErrors.quantity ? 'border-red-500' : 'border-gray-300'"
+                    @keydown.enter="saveEdit"
+                    @keydown.escape="cancelEdit"
+                    @blur="validateEditField('quantity')"
+                  />
+                </div>
+                <p v-if="editErrors.quantity" class="mt-1 text-xs text-red-600">{{ editErrors.quantity }}</p>
+              </div>
+              <div v-else class="text-sm text-gray-900">
+                {{ item.quantity }}
+              </div>
+            </td>
+
+            <!-- 操作列 -->
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              <button 
-                @click="editCuttingItem(item)"
-                class="text-blue-600 hover:text-blue-900 mr-4"
-              >
-                编辑
-              </button>
-              <button 
-                @click="deleteCuttingItem(item)"
-                class="text-red-600 hover:text-red-900"
-              >
-                删除
-              </button>
+              <div v-if="editingItem?.id === item.id" class="flex space-x-2">
+                <button 
+                  @click="saveEdit"
+                  :disabled="!isEditFormValid"
+                  class="text-green-600 hover:text-green-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="保存"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </button>
+                <button 
+                  @click="cancelEdit"
+                  class="text-gray-600 hover:text-gray-900"
+                  title="取消"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+              <div v-else class="flex space-x-4">
+                <button 
+                  @click="startEdit(item)"
+                  class="text-blue-600 hover:text-blue-900"
+                >
+                  编辑
+                </button>
+                <button 
+                  @click="deleteCuttingItem(item)"
+                  class="text-red-600 hover:text-red-900"
+                >
+                  删除
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -81,7 +188,9 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import { useSettingsStore } from '@/store/settings'
+import { validateDimension, validatePositiveNumber } from '@/utils/validation'
 import type { CuttingItem } from '@/models/types'
 
 const settingsStore = useSettingsStore()
@@ -96,17 +205,116 @@ const emit = defineEmits<{
   addItem: []
   editItem: [item: CuttingItem]
   deleteItem: [item: CuttingItem]
+  updateItem: [id: string, updates: Partial<CuttingItem>]
   downloadTemplate: []
   uploadTemplate: []
 }>()
 
+// 内联编辑状态
+const editingItem = ref<CuttingItem | null>(null)
+const editForm = ref({
+  name: '',
+  width: '',
+  height: '',
+  quantity: ''
+})
+const editErrors = ref({
+  width: '',
+  height: '',
+  quantity: ''
+})
+
+// 编辑表单验证状态
+const isEditFormValid = computed(() => {
+  return editForm.value.width && 
+         editForm.value.height && 
+         editForm.value.quantity &&
+         !editErrors.value.width && 
+         !editErrors.value.height && 
+         !editErrors.value.quantity
+})
+
+// 验证编辑字段
+const validateEditField = (field: 'width' | 'height' | 'quantity') => {
+  const value = editForm.value[field]
+  
+  if (field === 'width' || field === 'height') {
+    const validation = validateDimension(value, settingsStore.settings.unit)
+    editErrors.value[field] = validation.error || ''
+  } else if (field === 'quantity') {
+    const validation = validatePositiveNumber(value)
+    if (!validation.isValid) {
+      editErrors.value.quantity = validation.error || ''
+    } else {
+      const num = Number(value)
+      if (!Number.isInteger(num)) {
+        editErrors.value.quantity = '数量必须为整数'
+      } else {
+        editErrors.value.quantity = ''
+      }
+    }
+  }
+}
+
+// 开始编辑
+const startEdit = (item: CuttingItem) => {
+  editingItem.value = item
+  editForm.value = {
+    name: item.name || '',
+    width: item.width.toString(),
+    height: item.height.toString(),
+    quantity: item.quantity.toString()
+  }
+  editErrors.value = {
+    width: '',
+    height: '',
+    quantity: ''
+  }
+}
+
+// 取消编辑
+const cancelEdit = () => {
+  editingItem.value = null
+  editForm.value = {
+    name: '',
+    width: '',
+    height: '',
+    quantity: ''
+  }
+  editErrors.value = {
+    width: '',
+    height: '',
+    quantity: ''
+  }
+}
+
+// 保存编辑
+const saveEdit = () => {
+  if (!editingItem.value) return
+  
+  // 验证所有字段
+  validateEditField('width')
+  validateEditField('height')
+  validateEditField('quantity')
+  
+  if (!isEditFormValid.value) {
+    return
+  }
+  
+  const updates = {
+    name: editForm.value.name.trim() || '未命名',
+    width: Number(editForm.value.width),
+    height: Number(editForm.value.height),
+    quantity: Number(editForm.value.quantity)
+  }
+  
+  emit('updateItem', editingItem.value.id, updates)
+  cancelEdit()
+}
+
 // 切割清单相关方法
 const addCuttingItem = () => {
   emit('addItem')
-}
-
-const editCuttingItem = (item: CuttingItem) => {
-  emit('editItem', item)
 }
 
 const deleteCuttingItem = (item: CuttingItem) => {

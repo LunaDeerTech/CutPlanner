@@ -27,9 +27,10 @@
 
       <!-- 2. 切割清单区域 -->
       <CuttingListSection
-        :cutting-items="cuttingItems"
+        :cutting-items="cuttingStore.items"
         @add-item="handleAddCuttingItem"
         @edit-item="handleEditCuttingItem"
+        @update-item="handleUpdateCuttingItem"
         @delete-item="handleDeleteCuttingItem"
         @download-template="handleDownloadTemplate"
         @upload-template="handleUploadTemplate"
@@ -73,28 +74,41 @@
       @close="showSettingsModal = false"
       @save="handleSettingsSaved"
     />
+
+    <!-- 切割项目弹窗 -->
+    <CuttingItemModal
+      :is-visible="showCuttingItemModal"
+      :edit-item="editingCuttingItem"
+      @close="showCuttingItemModal = false"
+      @save="handleSaveCuttingItem"
+      @update="handleUpdateCuttingItem"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useMaterialStore } from '@/store/material'
+import { useCuttingStore } from '@/store/cutting'
 import { useSettingsStore } from '@/store/settings'
 import MaterialSection from '@/components/MaterialSection.vue'
 import CuttingListSection from '@/components/CuttingListSection.vue'
 import SettingsSection from '@/components/SettingsSection.vue'
 import CuttingResultSection from '@/components/CuttingResultSection.vue'
 import SettingsModal from '@/components/SettingsModal.vue'
+import CuttingItemModal from '@/components/CuttingItemModal.vue'
 import type { CuttingItem, CuttingSettings } from '@/models/types'
 
 const materialStore = useMaterialStore()
+const cuttingStore = useCuttingStore()
 const settingsStore = useSettingsStore()
-
-// 切割清单数据（临时模拟数据，后续会从store获取）
-const cuttingItems = ref<CuttingItem[]>([])
 
 // 设置弹窗显示状态
 const showSettingsModal = ref(false)
+
+// 切割项目弹窗状态
+const showCuttingItemModal = ref(false)
+const editingCuttingItem = ref<CuttingItem | null>(null)
 
 // 切割结果状态
 const hasCuttingResult = ref(false)
@@ -106,27 +120,33 @@ const cuttingResult = ref<{
 
 // 计算属性：是否可以生成切割方案
 const canGenerate = computed(() => {
-  return materialStore.materials.length > 0 && cuttingItems.value.length > 0
+  return materialStore.materials.length > 0 && cuttingStore.items.length > 0
 })
 
 // 切割清单相关方法
 const handleAddCuttingItem = () => {
-  // TODO: 弹出表单输入目标板尺寸与数量
-  alert('添加切割项目功能开发中...')
+  editingCuttingItem.value = null
+  showCuttingItemModal.value = true
 }
 
 const handleEditCuttingItem = (item: CuttingItem) => {
-  // TODO: 编辑切割项目
-  console.log('编辑切割项目:', item)
-  alert('编辑切割项目功能开发中...')
+  editingCuttingItem.value = item
+  showCuttingItemModal.value = true
+}
+
+const handleUpdateCuttingItem = (id: string, updates: Partial<CuttingItem>) => {
+  cuttingStore.updateItem(id, updates)
+  console.log('切割项目已更新:', updates)
 }
 
 const handleDeleteCuttingItem = (item: CuttingItem) => {
-  const index = cuttingItems.value.findIndex(ci => ci.id === item.id)
-  if (index > -1) {
-    cuttingItems.value.splice(index, 1)
-    console.log(`切割项目 "${item.name || '未命名'}" 已删除`)
-  }
+  cuttingStore.removeItem(item.id)
+  console.log(`切割项目 "${item.name || '未命名'}" 已删除`)
+}
+
+const handleSaveCuttingItem = (item: Omit<CuttingItem, 'id'>) => {
+  const newItem = cuttingStore.addItem(item)
+  console.log('切割项目已添加:', newItem)
 }
 
 const handleDownloadTemplate = () => {
