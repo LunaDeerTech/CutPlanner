@@ -48,8 +48,8 @@
         <tbody class="bg-white divide-y divide-gray-200">
           <tr v-for="item in cuttingItems" :key="item.id">
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.name || '未命名' }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.width }}{{ item.unit }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.height }}{{ item.unit }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.width }}{{ settingsStore.settings.unit }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.height }}{{ settingsStore.settings.unit }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.quantity }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
               <button 
@@ -81,8 +81,10 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
+import { useSettingsStore } from '@/store/settings'
 import type { CuttingItem } from '@/models/types'
+
+const settingsStore = useSettingsStore()
 
 // Props
 defineProps<{
@@ -108,7 +110,7 @@ const editCuttingItem = (item: CuttingItem) => {
 }
 
 const deleteCuttingItem = (item: CuttingItem) => {
-  const confirmMessage = `确定要删除切割项目"${item.name || '未命名'}"吗？\n\n尺寸：${item.width} × ${item.height} ${item.unit}\n数量：${item.quantity}\n\n此操作不可撤销。`
+  const confirmMessage = `确定要删除切割项目"${item.name || '未命名'}"吗？\n\n尺寸：${item.width} × ${item.height} ${settingsStore.settings.unit}\n数量：${item.quantity}\n\n此操作不可撤销。`
   
   if (confirm(confirmMessage)) {
     emit('deleteItem', item)

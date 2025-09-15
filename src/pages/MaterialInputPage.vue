@@ -31,33 +31,6 @@
             <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
           </div>
 
-          <!-- 单位选择 -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              测量单位 <span class="text-red-500">*</span>
-            </label>
-            <div class="flex space-x-4">
-              <label class="inline-flex items-center">
-                <input
-                  v-model="form.unit"
-                  type="radio"
-                  value="mm"
-                  class="form-radio text-blue-600"
-                />
-                <span class="ml-2">毫米 (mm)</span>
-              </label>
-              <label class="inline-flex items-center">
-                <input
-                  v-model="form.unit"
-                  type="radio"
-                  value="inch"
-                  class="form-radio text-blue-600"
-                />
-                <span class="ml-2">英寸 (inch)</span>
-              </label>
-            </div>
-          </div>
-
           <!-- 尺寸输入区域 -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- 长度/宽度 -->
@@ -77,7 +50,7 @@
                   @blur="validateField('width')"
                 />
                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 text-sm">
-                  {{ form.unit }}
+                  {{ settingsStore.settings.unit }}
                 </span>
               </div>
               <p v-if="errors.width" class="mt-1 text-sm text-red-600">{{ errors.width }}</p>
@@ -100,7 +73,7 @@
                   @blur="validateField('height')"
                 />
                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 text-sm">
-                  {{ form.unit }}
+                  {{ settingsStore.settings.unit }}
                 </span>
               </div>
               <p v-if="errors.height" class="mt-1 text-sm text-red-600">{{ errors.height }}</p>
@@ -123,7 +96,7 @@
                   @blur="validateField('thickness')"
                 />
                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 text-sm">
-                  {{ form.unit }}
+                  {{ settingsStore.settings.unit }}
                 </span>
               </div>
               <p v-if="errors.thickness" class="mt-1 text-sm text-red-600">{{ errors.thickness }}</p>
@@ -180,8 +153,8 @@
         <h3 class="text-sm font-medium text-blue-900 mb-2">预览信息</h3>
         <div class="text-sm text-blue-800">
           <p><strong>材料：</strong>{{ form.name || '未命名' }}</p>
-          <p><strong>尺寸：</strong>{{ form.width }} × {{ form.height }} × {{ form.thickness }} {{ form.unit }}</p>
-          <p><strong>面积：</strong>{{ calculateArea() }} {{ form.unit }}²</p>
+          <p><strong>尺寸：</strong>{{ form.width }} × {{ form.height }} × {{ form.thickness }} {{ settingsStore.settings.unit }}</p>
+          <p><strong>面积：</strong>{{ calculateArea() }} {{ settingsStore.settings.unit }}²</p>
           <p v-if="form.materialType"><strong>类型：</strong>{{ form.materialType }}</p>
         </div>
       </div>
@@ -193,12 +166,14 @@
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMaterialStore } from '@/store/material'
+import { useSettingsStore } from '@/store/settings'
 import { MATERIAL_TYPES } from '@/constants'
 import { formatNumberInput, validateDimension, validateThickness, validateRequired } from '@/utils/validation'
 
 // Composables
 const router = useRouter()
 const materialStore = useMaterialStore()
+const settingsStore = useSettingsStore()
 
 // Reactive state
 const form = reactive({
@@ -206,7 +181,6 @@ const form = reactive({
   width: '',
   height: '',
   thickness: '',
-  unit: 'mm' as 'mm' | 'inch',
   materialType: ''
 })
 
@@ -231,7 +205,6 @@ onMounted(() => {
     form.width = material.width.toString()
     form.height = material.height.toString()
     form.thickness = material.thickness.toString()
-    form.unit = material.unit
     form.materialType = material.materialType || ''
   }
 })
@@ -272,21 +245,21 @@ const validateField = (field: keyof typeof errors) => {
       break
       
     case 'width':
-      const widthValidation = validateDimension(form.width, form.unit)
+      const widthValidation = validateDimension(form.width, settingsStore.settings.unit)
       if (!widthValidation.isValid) {
         errors.width = widthValidation.error!
       }
       break
       
     case 'height':
-      const heightValidation = validateDimension(form.height, form.unit)
+      const heightValidation = validateDimension(form.height, settingsStore.settings.unit)
       if (!heightValidation.isValid) {
         errors.height = heightValidation.error!
       }
       break
       
     case 'thickness':
-      const thicknessValidation = validateThickness(form.thickness, form.unit)
+      const thicknessValidation = validateThickness(form.thickness, settingsStore.settings.unit)
       if (!thicknessValidation.isValid) {
         errors.thickness = thicknessValidation.error!
       }
@@ -323,7 +296,6 @@ const handleSubmit = async () => {
       width: parseFloat(form.width),
       height: parseFloat(form.height),
       thickness: parseFloat(form.thickness),
-      unit: form.unit,
       materialType: form.materialType || undefined
     }
     

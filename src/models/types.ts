@@ -6,7 +6,6 @@ export interface Material {
   width: number
   height: number
   thickness: number
-  unit: 'mm' | 'inch'
   materialType?: string | undefined
 }
 
@@ -16,7 +15,6 @@ export interface CuttingItem {
   width: number
   height: number
   quantity: number
-  unit: 'mm' | 'inch'
   allowRotation?: boolean
 }
 
@@ -39,6 +37,7 @@ export interface CutPiece {
 }
 
 export interface CuttingSettings {
+  unit: 'mm' | 'inch' // 默认单位
   kerfWidth: number // 锯片厚度
   margin: number // 边距
   allowRotation: boolean

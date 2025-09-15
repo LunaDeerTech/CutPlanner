@@ -3,8 +3,10 @@ import { ref, computed } from 'vue'
 import type { Material } from '@/models/types'
 import { validateDimension, validateThickness, validateRequired } from '@/utils/validation'
 import { LOCAL_STORAGE_KEYS } from '@/constants'
+import { useSettingsStore } from '@/store/settings'
 
 export const useMaterialStore = defineStore('material', () => {
+  const settingsStore = useSettingsStore()
   const materials = ref<Material[]>([])
   const currentMaterial = ref<Material | null>(null)
   const selectedMaterial = ref<Material | null>(null)
@@ -41,19 +43,19 @@ export const useMaterialStore = defineStore('material', () => {
     }
     
     // 验证宽度
-    const widthValidation = validateDimension(material.width, material.unit)
+    const widthValidation = validateDimension(material.width, settingsStore.settings.unit)
     if (!widthValidation.isValid) {
       errors['width'] = widthValidation.error!
     }
     
     // 验证高度
-    const heightValidation = validateDimension(material.height, material.unit)
+    const heightValidation = validateDimension(material.height, settingsStore.settings.unit)
     if (!heightValidation.isValid) {
       errors['height'] = heightValidation.error!
     }
     
     // 验证厚度
-    const thicknessValidation = validateThickness(material.thickness, material.unit)
+    const thicknessValidation = validateThickness(material.thickness, settingsStore.settings.unit)
     if (!thicknessValidation.isValid) {
       errors['thickness'] = thicknessValidation.error!
     }
@@ -115,13 +117,16 @@ export const useMaterialStore = defineStore('material', () => {
   // Computed properties
   const materialCount = computed(() => materials.value.length)
   
-  const materialsByUnit = computed(() => {
+  // 由于所有材料现在都使用同一个单位（来自settings），不再需要按单位分组
+  // 如果以后需要此功能，可以根据其他属性分组，如材料类型
+  const materialsByType = computed(() => {
     const grouped: Record<string, Material[]> = {}
     materials.value.forEach(material => {
-      if (!grouped[material.unit]) {
-        grouped[material.unit] = []
+      const type = material.materialType || '未分类'
+      if (!grouped[type]) {
+        grouped[type] = []
       }
-      grouped[material.unit].push(material)
+      grouped[type].push(material)
     })
     return grouped
   })
@@ -134,7 +139,7 @@ export const useMaterialStore = defineStore('material', () => {
     currentMaterial,
     selectedMaterial,
     materialCount,
-    materialsByUnit,
+    materialsByType,
     addMaterial,
     updateMaterial,
     removeMaterial,

@@ -5,6 +5,7 @@ import type { CuttingSettings } from '@/models/types'
 export const useSettingsStore = defineStore('settings', () => {
   // Default cutting settings
   const defaultSettings: CuttingSettings = {
+    unit: 'mm', // 默认使用毫米
     kerfWidth: 3, // 3mm default kerf width
     margin: 5, // 5mm default margin
     allowRotation: true,

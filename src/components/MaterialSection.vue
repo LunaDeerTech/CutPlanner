@@ -12,12 +12,12 @@
           
           <!-- 尺寸标签 -->
           <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-            尺寸：{{ materialStore.selectedMaterial.width }} × {{ materialStore.selectedMaterial.height }}{{ materialStore.selectedMaterial.unit }}
+            尺寸：{{ materialStore.selectedMaterial.width }} × {{ materialStore.selectedMaterial.height }}{{ settingsStore.settings.unit }}
           </span>
           
           <!-- 厚度标签 -->
           <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
-            厚度：{{ materialStore.selectedMaterial.thickness }}{{ materialStore.selectedMaterial.unit }}
+            厚度：{{ materialStore.selectedMaterial.thickness }}{{ settingsStore.settings.unit }}
           </span>
           
           <!-- 类型标签（如果有的话） -->
@@ -84,7 +84,7 @@
                 </span>
               </div>
               <p class="text-sm text-gray-600 mt-1">
-                {{ material.width }} × {{ material.height }} × {{ material.thickness }} {{ material.unit }}
+                {{ material.width }} × {{ material.height }} × {{ material.thickness }} {{ settingsStore.settings.unit }}
               </p>
               <p v-if="material.materialType" class="text-xs text-gray-500 mt-1">
                 {{ material.materialType }}
@@ -129,10 +129,12 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMaterialStore } from '@/store/material'
+import { useSettingsStore } from '@/store/settings'
 import type { Material } from '@/models/types'
 
 const router = useRouter()
 const materialStore = useMaterialStore()
+const settingsStore = useSettingsStore()
 const isExpanded = ref(true)
 
 const toggleExpanded = () => {
@@ -161,7 +163,7 @@ const selectMaterial = (material: Material) => {
 }
 
 const deleteMaterial = (material: Material) => {
-  const confirmMessage = `确定要删除材料"${material.name}"吗？\n\n尺寸：${material.width} × ${material.height} × ${material.thickness} ${material.unit}\n${material.materialType ? `类型：${material.materialType}\n` : ''}\n此操作不可撤销。`
+  const confirmMessage = `确定要删除材料"${material.name}"吗？\n\n尺寸：${material.width} × ${material.height} × ${material.thickness} ${settingsStore.settings.unit}\n${material.materialType ? `类型：${material.materialType}\n` : ''}\n此操作不可撤销。`
   
   if (confirm(confirmMessage)) {
     try {

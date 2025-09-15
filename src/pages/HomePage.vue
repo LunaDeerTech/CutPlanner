@@ -2,9 +2,21 @@
   <div class="min-h-screen bg-gray-50">
     <!-- 页面标题 -->
     <div class="bg-white shadow-sm border-b">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 relative">
         <h1 class="text-3xl font-bold text-gray-900">CutPlanner</h1>
         <p class="mt-2 text-gray-600">板材切割规划工具 - 减少废料，提升效率</p>
+        
+        <!-- 设置按钮 -->
+        <button
+          @click="showSettingsModal = true"
+          class="absolute top-6 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+          title="设置"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </button>
       </div>
     </div>
 
@@ -54,6 +66,13 @@
         @export-report="handleExportReport"
       />
     </div>
+
+    <!-- 设置弹窗 -->
+    <SettingsModal
+      :is-visible="showSettingsModal"
+      @close="showSettingsModal = false"
+      @save="handleSettingsSaved"
+    />
   </div>
 </template>
 
@@ -65,6 +84,7 @@ import MaterialSection from '@/components/MaterialSection.vue'
 import CuttingListSection from '@/components/CuttingListSection.vue'
 import SettingsSection from '@/components/SettingsSection.vue'
 import CuttingResultSection from '@/components/CuttingResultSection.vue'
+import SettingsModal from '@/components/SettingsModal.vue'
 import type { CuttingItem, CuttingSettings } from '@/models/types'
 
 const materialStore = useMaterialStore()
@@ -72,6 +92,9 @@ const settingsStore = useSettingsStore()
 
 // 切割清单数据（临时模拟数据，后续会从store获取）
 const cuttingItems = ref<CuttingItem[]>([])
+
+// 设置弹窗显示状态
+const showSettingsModal = ref(false)
 
 // 切割结果状态
 const hasCuttingResult = ref(false)
@@ -120,6 +143,11 @@ const handleUploadTemplate = () => {
 const handleUpdateSettings = (updatedSettings: Partial<CuttingSettings>) => {
   settingsStore.updateSettings(updatedSettings)
   console.log('设置已更新:', settingsStore.settings)
+}
+
+// 设置保存处理
+const handleSettingsSaved = (settings: CuttingSettings) => {
+  console.log('设置已保存:', settings)
 }
 
 // 生成切割方案
