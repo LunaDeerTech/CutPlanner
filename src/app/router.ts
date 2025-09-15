@@ -19,8 +19,8 @@ const router = createRouter({
 
 // Add global route guard to update page title
 router.beforeEach((to) => {
-  if (to.meta?.title) {
-    document.title = to.meta.title as string
+  if (to.meta && to.meta['title']) {
+    document.title = to.meta['title'] as string
   }
 })
 
