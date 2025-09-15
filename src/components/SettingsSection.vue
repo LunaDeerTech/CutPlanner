@@ -43,42 +43,15 @@
       
       <!-- 允许旋转 -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">允许旋转</label>
-        <div class="relative">
-          <input
-            :checked="settings.allowRotation"
-            @change="updateAllowRotation"
-            type="checkbox"
-            id="allow-rotation-checkbox"
-            class="sr-only"
-          />
-          <label
-            for="allow-rotation-checkbox"
-            class="flex items-center cursor-pointer select-none w-full px-3 py-2 border border-transparent rounded-md hover:bg-gray-50 transition-colors duration-200"
-          >
-            <div class="relative flex-shrink-0">
-              <div
-                :class="[
-                  'w-5 h-5 border-2 rounded transition-all duration-200 ease-in-out',
-                  settings.allowRotation 
-                    ? 'bg-blue-500 border-blue-500' 
-                    : 'bg-white border-gray-300 hover:border-blue-300'
-                ]"
-              >
-                <svg
-                  v-if="settings.allowRotation"
-                  class="w-3 h-3 text-white absolute top-0.5 left-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                </svg>
-              </div>
-            </div>
-            <span class="ml-3 text-sm text-gray-900">允许切割件旋转</span>
-          </label>
-        </div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">旋转</label>
+        <select
+          :value="settings.allowRotation ? 'true' : 'false'"
+          @change="updateAllowRotation"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="false">不允许旋转-始终顺着木纹裁板</option>
+          <option value="true">允许旋转-相邻的两块板可能存在交错</option>
+        </select>
       </div>
       
       <!-- 算法选择 -->
@@ -127,8 +100,8 @@ const updateMargin = (event: Event) => {
 }
 
 const updateAllowRotation = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  emit('updateSettings', { allowRotation: target.checked })
+  const target = event.target as HTMLSelectElement
+  emit('updateSettings', { allowRotation: target.value === 'true' })
 }
 
 const updateOptimizationStrategy = (event: Event) => {
