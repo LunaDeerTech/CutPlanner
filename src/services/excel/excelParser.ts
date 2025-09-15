@@ -223,8 +223,6 @@ const parseRowData = (
   const widthValue = row[columnMapping['width']!]  
   const quantityValue = row[columnMapping['quantity']!]
   const nameValue = columnMapping['name'] !== undefined ? row[columnMapping['name']!] : undefined
-  const materialValue = columnMapping['material'] !== undefined ? row[columnMapping['material']!] : undefined
-  const thicknessValue = columnMapping['thickness'] !== undefined ? row[columnMapping['thickness']!] : undefined
   
   // 验证必要字段
   if (lengthValue == null || lengthValue === '' || 
