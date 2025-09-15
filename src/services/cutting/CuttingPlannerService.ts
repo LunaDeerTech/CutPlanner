@@ -15,15 +15,22 @@ export class CuttingPlannerService {
    * Calculate optimal cutting layout for multiple materials
    * @param materials Available material types (unlimited quantity of each type)
    * @param items Items to be cut
+   * @param selectedMaterial Optional selected material to use preferentially
    * @returns Array of cutting results, one per material sheet used
    */
   async calculateOptimalLayout(
     materials: Material[],
-    items: CuttingItem[]
+    items: CuttingItem[],
+    selectedMaterial?: Material
   ): Promise<CuttingResult[]> {
     
     if (!materials.length || !items.length) {
       return []
+    }
+
+    // 必须选择一个材料才能进行切割规划
+    if (!selectedMaterial) {
+      throw new Error('请先选择要使用的料板规格')
     }
 
     // Validate input data
@@ -32,7 +39,7 @@ export class CuttingPlannerService {
     // Use the selected optimization strategy
     switch (this.settings.optimizationStrategy) {
       case 'first-fit':
-        return this.calculateFirstFitLayoutUnlimited(materials, items)
+        return this.calculateFirstFitLayoutUnlimited(materials, items, selectedMaterial)
       
       case 'best-fit':
         throw new Error('最佳适应算法尚未实现，请选择"首次适应"算法')
@@ -45,7 +52,7 @@ export class CuttingPlannerService {
       
       default:
         console.warn(`未知的优化策略: ${this.settings.optimizationStrategy}，使用首次适应算法`)
-        return this.calculateFirstFitLayoutUnlimited(materials, items)
+        return this.calculateFirstFitLayoutUnlimited(materials, items, selectedMaterial)
     }
   }
 
@@ -55,16 +62,16 @@ export class CuttingPlannerService {
    * Note: This method does NOT modify the original items array - it works with a deep copy
    */
   private calculateFirstFitLayoutUnlimited(
-    materials: Material[],
-    items: CuttingItem[]
+    _materials: Material[],  // 保留参数以维持接口一致性，但不再使用
+    items: CuttingItem[],
+    selectedMaterial: Material  // 不再是可选的
   ): CuttingResult[] {
     const results: CuttingResult[] = []
     // Create a deep copy of items to avoid modifying the original cutting list
     const remainingItems = items.map(item => ({ ...item }))
 
-    // Choose the best material type for this cutting plan
-    // For now, use the first material or the largest one
-    const selectedMaterial = this.selectBestMaterialType(materials)
+    // Use the provided selected material (no fallback needed since it's required)
+    const chosenMaterial = selectedMaterial
     
     let sheetNumber = 1
     
@@ -72,9 +79,9 @@ export class CuttingPlannerService {
     while (remainingItems.length > 0) {
       // Create a new sheet of the selected material type
       const currentSheet: Material = {
-        ...selectedMaterial,
-        id: `${selectedMaterial.id}_sheet_${sheetNumber}`,
-        name: `${selectedMaterial.name} - 第${sheetNumber}张`
+        ...chosenMaterial,
+        id: `${chosenMaterial.id}_sheet_${sheetNumber}`,
+        name: `${chosenMaterial.name} - 第${sheetNumber}张`
       }
 
       const cuttingService = new FirstFitCuttingService(this.settings)
@@ -110,7 +117,11 @@ export class CuttingPlannerService {
   /**
    * Select the best material type for cutting
    * Currently selects the largest material by area
+   * @deprecated This method is no longer used since material selection is now required
+   * @param materials Available materials
+   * @returns The best material
    */
+  // @ts-ignore - 保留此方法用于将来可能的功能扩展
   private selectBestMaterialType(materials: Material[]): Material {
     // Sort by area (largest first) and select the best one
     const sortedMaterials = [...materials].sort(

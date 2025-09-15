@@ -49,7 +49,7 @@
           </svg>
           <h3 class="mt-2 text-sm font-medium text-gray-900">暂无切割方案</h3>
           <p class="mt-1 text-sm text-gray-500">
-            {{ canGenerate ? '点击右上角"生成切割方案"按钮开始规划' : '请先添加原料和切割清单' }}
+            {{ getPlaceholderText() }}
           </p>
         </div>
       </div>
@@ -107,6 +107,8 @@
               <div>• SVG尺寸: {{ getSvgWidth(result.materialId) }}×{{ getSvgHeight(result.materialId) }}</div>
               <div>• 缩放比例: {{ getScaleFactor(result.materialId).toFixed(4) }}</div>
               <div>• 材料数据: {{ props.materials?.find(m => m.id === result.materialId) ? '✓找到' : '✗未找到' }}</div>
+              <div>• 查找方法: {{ findMaterialByResultId(result.materialId) ? '✓findMaterialByResultId找到' : '✗未找到' }}</div>
+              <div>• 原始ID匹配: {{ props.materials?.find(m => m.id === result.materialId.replace(/_sheet_\d+$/, '')) ? '✓原始ID找到' : '✗原始ID未找到' }}</div>
               <div v-if="result.cuts.length > 0">
                 • 第一个切割件: {{ result.cuts[0].x }},{{ result.cuts[0].y }} {{ result.cuts[0].width }}×{{ result.cuts[0].height }}
               </div>
@@ -210,6 +212,9 @@
 
 <script setup lang="ts">
 import type { CuttingResult, Material, CuttingItem } from '@/models/types'
+import { useMaterialStore } from '@/store/material'
+
+const materialStore = useMaterialStore()
 
 // Props
 const props = defineProps<{
@@ -239,6 +244,21 @@ const exportPNG = () => {
 
 const exportReport = () => {
   emit('exportReport')
+}
+
+// 获取占位符文本
+const getPlaceholderText = (): string => {
+  if (!props.materials || props.materials.length === 0) {
+    return '请先添加原料板材'
+  } else if (!props.items || props.items.length === 0) {
+    return '请先添加切割清单'
+  } else if (!materialStore.selectedMaterial) {
+    return '请在"原料配置"中选择要使用的料板规格'
+  } else if (props.canGenerate) {
+    return '点击右上角"生成切割方案"按钮开始规划'
+  } else {
+    return '请完成所有配置后再进行切割规划'
+  }
 }
 
 // SVG 相关计算

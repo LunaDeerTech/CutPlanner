@@ -101,7 +101,9 @@ const editingCuttingItem = ref<CuttingItem | null>(null)
 
 // 计算属性：是否可以生成切割方案
 const canGenerate = computed(() => {
-  return materialStore.materials.length > 0 && cuttingStore.items.length > 0
+  return materialStore.materials.length > 0 && 
+         cuttingStore.items.length > 0 && 
+         materialStore.selectedMaterial !== null
 })
 
 // 切割清单相关方法
@@ -169,7 +171,16 @@ const handleSettingsSaved = (settings: CuttingSettings) => {
 // 生成切割方案
 const generateCuttingPlan = async () => {
   if (!canGenerate.value) {
-    alert('请先添加原料和切割清单')
+    // 提供更具体的错误信息
+    if (materialStore.materials.length === 0) {
+      alert('请先添加原料')
+    } else if (cuttingStore.items.length === 0) {
+      alert('请先添加切割清单')
+    } else if (materialStore.selectedMaterial === null) {
+      alert('请先选择要使用的料板规格\n\n在"原料配置"区域点击料板卡片来选择')
+    } else {
+      alert('请先添加原料和切割清单，并选择要使用的料板')
+    }
     return
   }
   
@@ -180,16 +191,18 @@ const generateCuttingPlan = async () => {
     
     console.log('开始生成切割方案...')
     console.log('材料列表:', materialStore.materials)
+    console.log('选择的材料:', materialStore.selectedMaterial)
     console.log('切割项目:', cuttingStore.items)
     console.log('设置:', settingsStore.settings)
     
     // 创建切割规划服务
     const cuttingPlanner = new CuttingPlannerService(settingsStore.settings)
     
-    // 执行切割算法
+    // 执行切割算法 - 传递选择的材料
     const results = await cuttingPlanner.calculateOptimalLayout(
       materialStore.materials,
-      cuttingStore.items
+      cuttingStore.items,
+      materialStore.selectedMaterial!  // 使用 ! 断言，因为前面已经检查过 canGenerate
     )
     
     console.log('切割方案生成完成:', results)
@@ -200,8 +213,8 @@ const generateCuttingPlan = async () => {
     // 显示成功信息
     if (results.length > 0) {
       const totalPieces = results.reduce((sum: number, result: any) => sum + result.cuts.length, 0)
-      const materialType = materialStore.materials[0]?.name || '所选料板'
-      alert(`切割方案生成成功！\n料板类型: ${materialType}\n使用数量: ${results.length} 张\n切割零件: ${totalPieces} 个\n\n算法已自动选择最优的料板使用数量`)
+      const usedMaterialName = materialStore.selectedMaterial?.name || materialStore.materials[0]?.name || '自动选择的料板'
+      alert(`切割方案生成成功！\n使用料板: ${usedMaterialName}\n使用数量: ${results.length} 张\n切割零件: ${totalPieces} 个\n\n${materialStore.selectedMaterial ? '使用了您选择的料板类型' : '系统自动选择了最优料板'}`)
     } else {
       alert('无法生成切割方案，请检查材料和切割项目的尺寸')
     }
