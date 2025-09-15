@@ -116,7 +116,7 @@ const projectInfo = {
   version: '0.1.0',
   description: '板材切割规划工具 - 减少废料，提升效率',
   author: '未央鹿鸣',
-  authorLink: '',
+  authorLink: 'https://zhangyuheng.lunadeer.cn',
   license: 'GPL-3.0',
   copyright: '© 2025 LunaDeerTech',
   repository: 'https://github.com/LunaDeerTech/CutPlanner',
