@@ -182,12 +182,93 @@ const deleteMaterial = (material: Material) => {
 <style scoped>
 .slide-fade-enter-active,
 .slide-fade-leave-active {
-  transition: all 0.3s ease;
+  transition:
+    opacity 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+    max-height 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    filter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    box-shadow 0.3s ease;
+  overflow: hidden;
+  will-change: opacity, transform, max-height, filter;
 }
 
-.slide-fade-enter-from,
+.slide-fade-enter-from {
+  opacity: 0;
+  transform: translate3d(0, -20px, 0) scale3d(0.95, 0.95, 1);
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  filter: blur(3px) brightness(0.9);
+  box-shadow: 0 0 0 rgb(0 0 0 / 0%);
+}
+
 .slide-fade-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translate3d(0, -12px, 0) scale3d(0.97, 0.97, 1);
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  filter: blur(2px) brightness(0.95);
+  box-shadow: 0 0 0 rgb(0 0 0 / 0%);
+}
+
+.slide-fade-enter-to,
+.slide-fade-leave-from {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  max-height: 4000px; /* 更大的值确保内容完全显示 */
+  filter: blur(0) brightness(1);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+}
+
+/* 更精细的内容动画 */
+.slide-fade-enter-active .grid,
+.slide-fade-leave-active .grid {
+  transition:
+    opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s,
+    transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s;
+  will-change: opacity, transform;
+}
+
+.slide-fade-enter-from .grid {
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+}
+
+.slide-fade-leave-to .grid {
+  opacity: 0.3;
+  transform: translate3d(0, -5px, 0);
+}
+
+.slide-fade-enter-to .grid,
+.slide-fade-leave-from .grid {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* 空状态的特殊动画 */
+.slide-fade-enter-active .text-center,
+.slide-fade-leave-active .text-center {
+  transition: opacity 0.3s ease 0.2s, transform 0.3s ease 0.2s;
+}
+
+.slide-fade-enter-from .text-center {
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+}
+
+.slide-fade-leave-to .text-center {
+  opacity: 0.5;
+  transform: translate3d(0, -4px, 0);
+}
+
+.slide-fade-enter-to .text-center,
+.slide-fade-leave-from .text-center {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
 }
 </style>
