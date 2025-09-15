@@ -12,15 +12,42 @@
           </svg>
           添加
         </button>
-        <button
-          @click="downloadTemplate"
-          class="flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-        >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-          </svg>
-          下载模板
-        </button>
+        <div class="template-menu-container relative">
+          <button
+            @click="showTemplateMenu = !showTemplateMenu"
+            class="flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            下载模板
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+            
+          <!-- 下拉菜单 -->
+          <div v-if="showTemplateMenu" class="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+            <button
+              @click="downloadTemplate('sample')"
+              class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              示例模板
+            </button>
+            <button
+              @click="downloadTemplate('empty')"
+              class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              空白模板
+            </button>
+          </div>
+        </div>
         <button
           @click="uploadTemplate"
           class="flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
@@ -188,9 +215,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useSettingsStore } from '@/store/settings'
 import { validateDimension, validatePositiveNumber } from '@/utils/validation'
+import { generateCuttingListTemplate, generateEmptyTemplate } from '@/services/excel'
 import type { CuttingItem } from '@/models/types'
 
 const settingsStore = useSettingsStore()
@@ -223,6 +251,9 @@ const editErrors = ref({
   height: '',
   quantity: ''
 })
+
+// 模板下载菜单状态
+const showTemplateMenu = ref(false)
 
 // 编辑表单验证状态
 const isEditFormValid = computed(() => {
@@ -325,11 +356,42 @@ const deleteCuttingItem = (item: CuttingItem) => {
   }
 }
 
-const downloadTemplate = () => {
-  emit('downloadTemplate')
+const downloadTemplate = (type: 'sample' | 'empty') => {
+  showTemplateMenu.value = false
+  
+  try {
+    if (type === 'sample') {
+      generateCuttingListTemplate()
+    } else {
+      generateEmptyTemplate()
+    }
+    
+    // 显示成功提示
+    console.log(`${type === 'sample' ? '示例' : '空白'}模板下载成功`)
+  } catch (error) {
+    console.error('模板下载失败:', error)
+    alert('模板下载失败，请重试')
+  }
 }
 
 const uploadTemplate = () => {
   emit('uploadTemplate')
 }
+
+// 点击外部关闭菜单
+const handleClickOutside = (event: Event) => {
+  const target = event.target as Element
+  if (!target.closest('.template-menu-container')) {
+    showTemplateMenu.value = false
+  }
+}
+
+// 监听点击事件
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
