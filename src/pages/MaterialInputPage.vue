@@ -3,8 +3,12 @@
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- 页面标题 -->
       <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">添加原料板材</h1>
-        <p class="text-gray-600">请输入原料板材的基本信息</p>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+          {{ isEditMode ? '编辑原料板材' : '添加原料板材' }}
+        </h1>
+        <p class="text-gray-600">
+          {{ isEditMode ? '修改原料板材的基本信息' : '请输入原料板材的基本信息' }}
+        </p>
       </div>
 
       <!-- 表单区域 -->
@@ -163,9 +167,9 @@
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                保存中...
+                {{ isEditMode ? '更新中...' : '保存中...' }}
               </span>
-              <span v-else>保存材料</span>
+              <span v-else>{{ isEditMode ? '更新材料' : '保存材料' }}</span>
             </button>
           </div>
         </form>
@@ -186,7 +190,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMaterialStore } from '@/store/material'
 import { MATERIAL_TYPES } from '@/constants'
@@ -215,6 +219,22 @@ const errors = reactive({
 
 const isLoading = ref(false)
 const materialTypes = MATERIAL_TYPES
+
+// Check if we're in edit mode
+const isEditMode = computed(() => !!materialStore.currentMaterial)
+
+// Initialize form with existing material data if editing
+onMounted(() => {
+  if (materialStore.currentMaterial) {
+    const material = materialStore.currentMaterial
+    form.name = material.name
+    form.width = material.width.toString()
+    form.height = material.height.toString()
+    form.thickness = material.thickness.toString()
+    form.unit = material.unit
+    form.materialType = material.materialType || ''
+  }
+})
 
 // Computed
 const isFormValid = computed(() => {
@@ -298,29 +318,42 @@ const handleSubmit = async () => {
   isLoading.value = true
   
   try {
-    await materialStore.addMaterial({
+    const materialData = {
       name: form.name.trim(),
       width: parseFloat(form.width),
       height: parseFloat(form.height),
       thickness: parseFloat(form.thickness),
       unit: form.unit,
       materialType: form.materialType || undefined
-    })
+    }
     
-    // 成功提示
-    alert('材料添加成功！')
+    if (isEditMode.value && materialStore.currentMaterial) {
+      // 编辑模式：更新现有材料
+      await materialStore.updateMaterial(materialStore.currentMaterial.id, materialData)
+      alert('材料更新成功！')
+    } else {
+      // 创建模式：添加新材料
+      await materialStore.addMaterial(materialData)
+      alert('材料添加成功！')
+    }
     
-    // 跳转到下一步或返回首页
+    // 清除当前材料状态
+    materialStore.setCurrentMaterial(null)
+    
+    // 跳转到首页
     router.push('/')
   } catch (error) {
-    alert(`保存失败: ${error}`)
+    alert(`${isEditMode.value ? '更新' : '保存'}失败: ${error}`)
   } finally {
     isLoading.value = false
   }
 }
 
 const handleCancel = () => {
-  if (confirm('确定要取消吗？未保存的数据将丢失。')) {
+  const action = isEditMode.value ? '取消编辑' : '取消'
+  if (confirm(`确定要${action}吗？未保存的数据将丢失。`)) {
+    // 清除当前材料状态
+    materialStore.setCurrentMaterial(null)
     router.push('/')
   }
 }

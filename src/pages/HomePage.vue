@@ -52,9 +52,31 @@
           <div
             v-for="material in materialStore.materials"
             :key="material.id"
-            class="bg-white rounded-lg shadow p-4"
+            class="bg-white rounded-lg shadow p-4 relative group hover:shadow-md transition-shadow"
           >
-            <h3 class="font-medium text-gray-900">{{ material.name }}</h3>
+            <!-- 编辑和删除按钮 -->
+            <div class="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                @click="editMaterial(material)"
+                class="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                title="编辑材料"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </button>
+              <button
+                @click="deleteMaterial(material)"
+                class="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                title="删除材料"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+            
+            <h3 class="font-medium text-gray-900 pr-12">{{ material.name }}</h3>
             <p class="text-sm text-gray-600 mt-1">
               {{ material.width }} × {{ material.height }} × {{ material.thickness }} {{ material.unit }}
             </p>
@@ -71,12 +93,34 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useMaterialStore } from '@/store/material'
+import type { Material } from '@/models/types'
 
 const router = useRouter()
 const materialStore = useMaterialStore()
 
 const navigateToMaterialInput = () => {
   router.push('/material/input')
+}
+
+const editMaterial = (material: Material) => {
+  // 设置当前编辑的材料到store中
+  materialStore.setCurrentMaterial(material)
+  // 导航到材料输入页面进行编辑
+  router.push('/material/input')
+}
+
+const deleteMaterial = (material: Material) => {
+  const confirmMessage = `确定要删除材料"${material.name}"吗？\n\n尺寸：${material.width} × ${material.height} × ${material.thickness} ${material.unit}\n${material.materialType ? `类型：${material.materialType}\n` : ''}\n此操作不可撤销。`
+  
+  if (confirm(confirmMessage)) {
+    try {
+      materialStore.removeMaterial(material.id)
+      // 可以添加一个简单的成功提示
+      console.log(`材料 "${material.name}" 已删除`)
+    } catch (error) {
+      alert(`删除失败: ${error}`)
+    }
+  }
 }
 </script>
 
