@@ -6,17 +6,31 @@
         <h1 class="text-3xl font-bold text-gray-900">CutPlanner</h1>
         <p class="mt-2 text-gray-600">板材切割规划工具 - 减少废料，提升效率</p>
         
-        <!-- 设置按钮 -->
-        <button
-          @click="showSettingsModel = true"
-          class="absolute top-6 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-          title="设置"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-          </svg>
-        </button>
+        <!-- 右上角按钮组 -->
+        <div class="absolute top-6 right-4 flex items-center space-x-2">
+          <!-- 项目信息按钮 -->
+          <button
+            @click="showProjectInfoModal = true"
+            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            title="项目信息"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </button>
+          
+          <!-- 设置按钮 -->
+          <button
+            @click="showSettingsModal = true"
+            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            title="设置"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -57,17 +71,23 @@
     </div>
 
     <!-- 设置弹窗 -->
-    <SettingsModel
-      :is-visible="showSettingsModel"
-      @close="showSettingsModel = false"
+    <SettingsModal
+      :is-visible="showSettingsModal"
+      @close="showSettingsModal = false"
       @save="handleSettingsSaved"
     />
 
+    <!-- 项目信息弹窗 -->
+    <ProjectInfoModal
+      :is-visible="showProjectInfoModal"
+      @close="showProjectInfoModal = false"
+    />
+
     <!-- 切割项目弹窗 -->
-    <CuttingItemModel
-      :is-visible="showCuttingItemModel"
+    <CuttingItemModal
+      :is-visible="showCuttingItemModal"
       :edit-item="editingCuttingItem"
-      @close="showCuttingItemModel = false"
+      @close="showCuttingItemModal = false"
       @save="handleSaveCuttingItem"
       @update="handleUpdateCuttingItem"
     />
@@ -83,8 +103,9 @@ import MaterialSection from '@/components/MaterialSection.vue'
 import CuttingListSection from '@/components/CuttingListSection.vue'
 import SettingsSection from '@/components/SettingsSection.vue'
 import CuttingResultSection from '@/components/CuttingResultSection.vue'
-import SettingsModel from '@/components/SettingsModel.vue'
-import CuttingItemModel from '@/components/CuttingItemModel.vue'
+import SettingsModal from '@/components/SettingsModal.vue'
+import CuttingItemModal from '@/components/CuttingItemModal.vue'
+import ProjectInfoModal from '@/components/ProjectInfoModal.vue'
 import { CuttingPlannerService } from '@/services/cutting/CuttingPlannerService'
 import type { CuttingItem, CuttingSettings } from '@/models/types'
 
@@ -93,10 +114,13 @@ const cuttingStore = useCuttingStore()
 const settingsStore = useSettingsStore()
 
 // 设置弹窗显示状态
-const showSettingsModel = ref(false)
+const showSettingsModal = ref(false)
+
+// 项目信息弹窗显示状态
+const showProjectInfoModal = ref(false)
 
 // 切割项目弹窗状态
-const showCuttingItemModel = ref(false)
+const showCuttingItemModal = ref(false)
 const editingCuttingItem = ref<CuttingItem | null>(null)
 
 // 计算属性：是否可以生成切割方案
@@ -109,12 +133,12 @@ const canGenerate = computed(() => {
 // 切割清单相关方法
 const handleAddCuttingItem = () => {
   editingCuttingItem.value = null
-  showCuttingItemModel.value = true
+  showCuttingItemModal.value = true
 }
 
 const handleEditCuttingItem = (item: CuttingItem) => {
   editingCuttingItem.value = item
-  showCuttingItemModel.value = true
+  showCuttingItemModal.value = true
 }
 
 const handleUpdateCuttingItem = (id: string, updates: Partial<CuttingItem>) => {
