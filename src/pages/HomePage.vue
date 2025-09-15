@@ -8,7 +8,7 @@
         
         <!-- 设置按钮 -->
         <button
-          @click="showSettingsModal = true"
+          @click="showSettingsModel = true"
           class="absolute top-6 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           title="设置"
         >
@@ -69,17 +69,17 @@
     </div>
 
     <!-- 设置弹窗 -->
-    <SettingsModal
-      :is-visible="showSettingsModal"
-      @close="showSettingsModal = false"
+    <SettingsModel
+      :is-visible="showSettingsModel"
+      @close="showSettingsModel = false"
       @save="handleSettingsSaved"
     />
 
     <!-- 切割项目弹窗 -->
-    <CuttingItemModal
-      :is-visible="showCuttingItemModal"
+    <CuttingItemModel
+      :is-visible="showCuttingItemModel"
       :edit-item="editingCuttingItem"
-      @close="showCuttingItemModal = false"
+      @close="showCuttingItemModel = false"
       @save="handleSaveCuttingItem"
       @update="handleUpdateCuttingItem"
     />
@@ -95,8 +95,8 @@ import MaterialSection from '@/components/MaterialSection.vue'
 import CuttingListSection from '@/components/CuttingListSection.vue'
 import SettingsSection from '@/components/SettingsSection.vue'
 import CuttingResultSection from '@/components/CuttingResultSection.vue'
-import SettingsModal from '@/components/SettingsModal.vue'
-import CuttingItemModal from '@/components/CuttingItemModal.vue'
+import SettingsModel from '@/components/SettingsModel.vue'
+import CuttingItemModel from '@/components/CuttingItemModel.vue'
 import type { CuttingItem, CuttingSettings } from '@/models/types'
 
 const materialStore = useMaterialStore()
@@ -104,10 +104,10 @@ const cuttingStore = useCuttingStore()
 const settingsStore = useSettingsStore()
 
 // 设置弹窗显示状态
-const showSettingsModal = ref(false)
+const showSettingsModel = ref(false)
 
 // 切割项目弹窗状态
-const showCuttingItemModal = ref(false)
+const showCuttingItemModel = ref(false)
 const editingCuttingItem = ref<CuttingItem | null>(null)
 
 // 切割结果状态
@@ -126,12 +126,12 @@ const canGenerate = computed(() => {
 // 切割清单相关方法
 const handleAddCuttingItem = () => {
   editingCuttingItem.value = null
-  showCuttingItemModal.value = true
+  showCuttingItemModel.value = true
 }
 
 const handleEditCuttingItem = (item: CuttingItem) => {
   editingCuttingItem.value = item
-  showCuttingItemModal.value = true
+  showCuttingItemModel.value = true
 }
 
 const handleUpdateCuttingItem = (id: string, updates: Partial<CuttingItem>) => {
@@ -150,8 +150,6 @@ const handleSaveCuttingItem = (item: Omit<CuttingItem, 'id'>) => {
 }
 
 const handleDownloadTemplate = () => {
-  // TODO: 下载Excel模板
-  alert('下载模板功能开发中...')
 }
 
 const handleUploadTemplate = () => {
