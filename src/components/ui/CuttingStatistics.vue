@@ -26,7 +26,7 @@
 import type { CuttingResult } from '@/models/types'
 import { computed } from 'vue'
 import { useSettingsStore } from '@/store/settings'
-import { formatArea, formatNumber } from '@/utils/unitFormatter'
+import { formatArea } from '@/utils/unitFormatter'
 
 // Props
 const props = defineProps<{
@@ -61,22 +61,22 @@ const formattedWasteArea = computed(() => {
   // 使用自适应单位格式化
   const formatted = formatArea(area, { 
     unit, 
-    precision: 0, 
+    precision: 0, // 基础精度，函数内部会根据单位自动调整
     adaptiveUnit: true 
   })
   
-  // 分离数值和单位
+  // 使用正则表达式分离数值和单位
   const match = formatted.match(/^([\d,.-]+)(.+)$/)
   if (match) {
     return {
-      value: formatNumber(parseFloat(match[1].replace(/,/g, '')), 0),
+      value: match[1], // 直接使用格式化后的数值，保留小数位
       unit: match[2]
     }
   }
   
   // 回退方案
   return {
-    value: formatNumber(area, 0),
+    value: area.toFixed(0),
     unit: `${unit}²`
   }
 })
