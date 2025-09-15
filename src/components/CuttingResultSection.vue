@@ -2,8 +2,20 @@
   <div class="bg-white rounded-lg shadow p-6">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-xl font-semibold text-gray-900">切割示意图</h2>
-      <!-- 导出按钮 -->
+      <!-- 操作按钮组 -->
       <div class="flex space-x-3">
+        <!-- 生成排版按钮 -->
+        <button
+          @click="generateCuttingPlan"
+          :disabled="!canGenerate"
+          class="inline-flex items-center px-6 py-2 text-base font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
+        >
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+          生成切割方案
+        </button>
+        <!-- 导出按钮 -->
         <button
           @click="exportPNG"
           :disabled="!hasCuttingResult"
@@ -34,7 +46,9 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
         </svg>
         <h3 class="mt-2 text-sm font-medium text-gray-900">暂无切割方案</h3>
-        <p class="mt-1 text-sm text-gray-500">点击"生成切割方案"按钮开始规划</p>
+        <p class="mt-1 text-sm text-gray-500">
+          {{ canGenerate ? '点击右上角"生成切割方案"按钮开始规划' : '请先添加原料和切割清单' }}
+        </p>
       </div>
       <div v-else class="text-center w-full">
         <div class="text-gray-600 mb-4">切割示意图将在此显示</div>
@@ -78,13 +92,20 @@ interface CuttingResultSummary {
 defineProps<{
   hasCuttingResult: boolean
   cuttingResult?: CuttingResultSummary
+  canGenerate?: boolean
 }>()
 
 // Emits
 const emit = defineEmits<{
   exportPNG: []
   exportReport: []
+  generateCuttingPlan: []
 }>()
+
+// 生成切割方案方法
+const generateCuttingPlan = () => {
+  emit('generateCuttingPlan')
+}
 
 // 导出功能方法
 const exportPNG = () => {

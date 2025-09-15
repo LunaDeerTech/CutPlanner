@@ -43,27 +43,12 @@
         @update-settings="handleUpdateSettings"
       />
 
-      <!-- 4. 生成排版按钮 -->
-      <div class="text-center">
-        <button
-          @click="generateCuttingPlan"
-          :disabled="!canGenerate"
-          class="inline-flex items-center px-8 py-4 text-lg font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
-        >
-          <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-          </svg>
-          生成切割方案
-        </button>
-        <p v-if="!canGenerate" class="mt-2 text-sm text-gray-500">
-          请先添加原料和切割清单
-        </p>
-      </div>
-
-      <!-- 5. 切割示意图区域 -->
+      <!-- 4. 切割示意图区域 -->
       <CuttingResultSection
         :has-cutting-result="hasCuttingResult"
+        :can-generate="canGenerate"
         v-bind="hasCuttingResult && cuttingResult ? { cuttingResult } : {}"
+        @generate-cutting-plan="generateCuttingPlan"
         @export-p-n-g="handleExportPNG"
         @export-report="handleExportReport"
       />
