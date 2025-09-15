@@ -33,7 +33,7 @@ export function formatArea(area: number, options: FormatOptions): string {
  * 格式化毫米单位的面积
  */
 function formatAreaMM(area: number, precision: number): string {
-  if (area >= 1000000) {
+  if (area >= 100000) {
     // 大于1平方米，显示为m²
     const areaInM2 = area / 1000000
     return `${areaInM2.toFixed(precision + 2)}m²`
