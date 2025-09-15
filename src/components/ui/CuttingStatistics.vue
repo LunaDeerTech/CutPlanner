@@ -15,8 +15,8 @@
         <div class="text-gray-600">切割件数</div>
       </div>
       <div class="text-center">
-        <div class="text-2xl font-bold text-red-600">{{ totalWasteArea.toFixed(0) }}</div>
-        <div class="text-gray-600">总废料面积</div>
+        <div class="text-2xl font-bold text-red-600">{{ formattedWasteArea.value }}</div>
+        <div class="text-gray-600">总废料面积 ({{ formattedWasteArea.unit }})</div>
       </div>
     </div>
   </div>
@@ -25,11 +25,16 @@
 <script setup lang="ts">
 import type { CuttingResult } from '@/models/types'
 import { computed } from 'vue'
+import { useSettingsStore } from '@/store/settings'
+import { formatArea, formatNumber } from '@/utils/unitFormatter'
 
 // Props
 const props = defineProps<{
   cuttingResults: CuttingResult[]
 }>()
+
+// Stores
+const settingsStore = useSettingsStore()
 
 // 计算平均利用率
 const averageUtilization = computed(() => {
@@ -46,5 +51,33 @@ const totalCuts = computed(() => {
 // 计算总废料面积
 const totalWasteArea = computed(() => {
   return props.cuttingResults.reduce((sum, r) => sum + r.totalWasteArea, 0)
+})
+
+// 格式化废料面积显示
+const formattedWasteArea = computed(() => {
+  const area = totalWasteArea.value
+  const unit = settingsStore.settings.unit
+  
+  // 使用自适应单位格式化
+  const formatted = formatArea(area, { 
+    unit, 
+    precision: 0, 
+    adaptiveUnit: true 
+  })
+  
+  // 分离数值和单位
+  const match = formatted.match(/^([\d,.-]+)(.+)$/)
+  if (match) {
+    return {
+      value: formatNumber(parseFloat(match[1].replace(/,/g, '')), 0),
+      unit: match[2]
+    }
+  }
+  
+  // 回退方案
+  return {
+    value: formatNumber(area, 0),
+    unit: `${unit}²`
+  }
 })
 </script>

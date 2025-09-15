@@ -154,7 +154,7 @@
         <div class="text-sm text-blue-800">
           <p><strong>材料：</strong>{{ form.name || '未命名' }}</p>
           <p><strong>尺寸：</strong>{{ form.width }} × {{ form.height }} × {{ form.thickness }} {{ settingsStore.settings.unit }}</p>
-          <p><strong>面积：</strong>{{ calculateArea() }} {{ settingsStore.settings.unit }}²</p>
+          <p><strong>面积：</strong>{{ formattedArea }}</p>
           <p v-if="form.materialType"><strong>类型：</strong>{{ form.materialType }}</p>
         </div>
       </div>
@@ -169,6 +169,7 @@ import { useMaterialStore } from '@/store/material'
 import { useSettingsStore } from '@/store/settings'
 import { MATERIAL_TYPES } from '@/constants'
 import { formatNumberInput, validateDimension, validateThickness, validateRequired } from '@/utils/validation'
+import { formatArea } from '@/utils/unitFormatter'
 
 // Composables
 const router = useRouter()
@@ -280,8 +281,20 @@ const calculateArea = () => {
   const width = parseFloat(form.width)
   const height = parseFloat(form.height)
   if (isNaN(width) || isNaN(height)) return 0
-  return (width * height).toFixed(2)
+  return width * height
 }
+
+// 格式化面积显示
+const formattedArea = computed(() => {
+  const area = calculateArea()
+  if (area === 0) return '0'
+  
+  return formatArea(area, {
+    unit: settingsStore.settings.unit,
+    precision: 2,
+    adaptiveUnit: true
+  })
+})
 
 const handleSubmit = async () => {
   if (!validateForm()) {
