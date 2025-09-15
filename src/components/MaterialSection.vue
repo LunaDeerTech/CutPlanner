@@ -4,13 +4,28 @@
       <div class="flex items-center space-x-3">
         <h2 class="text-xl font-semibold text-gray-900">原料配置</h2>
         <!-- 显示当前选择的原料信息 -->
-        <div v-if="materialStore.selectedMaterial" class="flex items-center">
+        <div v-if="materialStore.selectedMaterial" class="flex items-center flex-wrap gap-2">
+          <!-- 名称标签 -->
           <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-            {{ materialStore.selectedMaterial.name }} - 
-            {{ materialStore.selectedMaterial.width }}×{{ materialStore.selectedMaterial.height }}×{{ materialStore.selectedMaterial.thickness }}{{ materialStore.selectedMaterial.unit }}
-            <span v-if="materialStore.selectedMaterial.materialType" class="ml-1">
-              ({{ materialStore.selectedMaterial.materialType }})
-            </span>
+            {{ materialStore.selectedMaterial.name }}
+          </span>
+          
+          <!-- 尺寸标签 -->
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+            尺寸：{{ materialStore.selectedMaterial.width }} × {{ materialStore.selectedMaterial.height }}{{ materialStore.selectedMaterial.unit }}
+          </span>
+          
+          <!-- 厚度标签 -->
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+            厚度：{{ materialStore.selectedMaterial.thickness }}{{ materialStore.selectedMaterial.unit }}
+          </span>
+          
+          <!-- 类型标签（如果有的话） -->
+          <span 
+            v-if="materialStore.selectedMaterial.materialType"
+            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800"
+          >
+            类型：{{ materialStore.selectedMaterial.materialType }}
           </span>
         </div>
       </div>
