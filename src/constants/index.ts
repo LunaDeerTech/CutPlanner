@@ -26,6 +26,18 @@ export const OPTIMIZATION_STRATEGIES = {
   GENETIC: 'genetic'
 } as const
 
+export const MATERIAL_TYPES = [
+  '实木板',
+  '胶合板',
+  'MDF板',
+  '刨花板',
+  'OSB板',
+  '多层板',
+  '免漆板',
+  '生态板',
+  '其他'
+] as const
+
 export const LOCAL_STORAGE_KEYS = {
   SETTINGS: 'cutplanner-settings',
   MATERIALS: 'cutplanner-materials',

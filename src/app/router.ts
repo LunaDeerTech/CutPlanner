@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '@/pages/HomePage.vue'
+import MaterialInputPage from '@/pages/MaterialInputPage.vue'
 
 const routes = [
   {
@@ -8,6 +9,14 @@ const routes = [
     component: HomePage,
     meta: {
       title: 'CutPlanner - 木板切割规划工具'
+    }
+  },
+  {
+    path: '/material/input',
+    name: 'material-input',
+    component: MaterialInputPage,
+    meta: {
+      title: '添加原料板材 - CutPlanner'
     }
   }
 ]

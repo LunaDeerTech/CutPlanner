@@ -7,7 +7,7 @@ export interface Material {
   height: number
   thickness: number
   unit: 'mm' | 'inch'
-  materialType?: string
+  materialType?: string | undefined
 }
 
 export interface CuttingItem {
