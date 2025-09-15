@@ -4,7 +4,7 @@
     <div class="bg-white shadow-sm border-b">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <h1 class="text-3xl font-bold text-gray-900">CutPlanner</h1>
-        <p class="mt-2 text-gray-600">专业木板切割规划工具</p>
+        <p class="mt-2 text-gray-600">板材切割规划工具 - 减少废料，提升效率</p>
       </div>
     </div>
 
