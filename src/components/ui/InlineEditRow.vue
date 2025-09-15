@@ -18,6 +18,30 @@
     </td>
 
     <!-- 长度列 -->
+     <td class="px-6 py-4 whitespace-nowrap">
+      <div v-if="isEditing">
+        <div class="flex items-center">
+          <input
+            v-model="editForm.length"
+            type="number"
+            step="0.1"
+            min="0.1"
+            class="w-20 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            :class="errors.length ? 'border-red-500' : 'border-gray-300'"
+            @keydown.enter="handleSave"
+            @keydown.escape="handleCancel"
+            @blur="validateField('length')"
+          />
+          <span class="ml-1 text-sm text-gray-500">{{ unit }}</span>
+        </div>
+        <p v-if="errors.length" class="mt-1 text-xs text-red-600">{{ errors.length }}</p>
+      </div>
+      <div v-else class="text-sm text-gray-900">
+        {{ item.length }}{{ unit }}
+      </div>
+    </td>
+
+    <!-- 宽度列 -->
     <td class="px-6 py-4 whitespace-nowrap">
       <div v-if="isEditing">
         <div class="flex items-center">
@@ -38,30 +62,6 @@
       </div>
       <div v-else class="text-sm text-gray-900">
         {{ item.width }}{{ unit }}
-      </div>
-    </td>
-
-    <!-- 宽度列 -->
-    <td class="px-6 py-4 whitespace-nowrap">
-      <div v-if="isEditing">
-        <div class="flex items-center">
-          <input
-            v-model="editForm.height"
-            type="number"
-            step="0.1"
-            min="0.1"
-            class="w-20 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-            :class="errors.height ? 'border-red-500' : 'border-gray-300'"
-            @keydown.enter="handleSave"
-            @keydown.escape="handleCancel"
-            @blur="validateField('height')"
-          />
-          <span class="ml-1 text-sm text-gray-500">{{ unit }}</span>
-        </div>
-        <p v-if="errors.height" class="mt-1 text-xs text-red-600">{{ errors.height }}</p>
-      </div>
-      <div v-else class="text-sm text-gray-900">
-        {{ item.height }}{{ unit }}
       </div>
     </td>
 
@@ -152,24 +152,24 @@ const emit = defineEmits<{
 const editForm = ref({
   name: '',
   width: '',
-  height: '',
+  length: '',
   quantity: ''
 })
 
 // 错误状态
 const errors = ref({
   width: '',
-  height: '',
+  length: '',
   quantity: ''
 })
 
 // 表单验证状态
 const isFormValid = computed(() => {
   return editForm.value.width && 
-         editForm.value.height && 
+         editForm.value.length && 
          editForm.value.quantity &&
          !errors.value.width && 
-         !errors.value.height && 
+         !errors.value.length && 
          !errors.value.quantity
 })
 
@@ -179,22 +179,22 @@ watch(() => props.isEditing, (isEditing) => {
     editForm.value = {
       name: props.item.name || '',
       width: props.item.width.toString(),
-      height: props.item.height.toString(),
+      length: props.item.length.toString(),
       quantity: props.item.quantity.toString()
     }
     errors.value = {
       width: '',
-      height: '',
+      length: '',
       quantity: ''
     }
   }
 })
 
 // 验证字段
-const validateField = (field: 'width' | 'height' | 'quantity') => {
+const validateField = (field: 'width' | 'length' | 'quantity') => {
   const value = editForm.value[field]
   
-  if (field === 'width' || field === 'height') {
+  if (field === 'width' || field === 'length') {
     const validation = validateDimension(value, props.unit)
     errors.value[field] = validation.error || ''
   } else if (field === 'quantity') {
@@ -220,7 +220,7 @@ const handleEdit = () => {
 const handleSave = () => {
   // 验证所有字段
   validateField('width')
-  validateField('height')
+  validateField('length')
   validateField('quantity')
   
   if (!isFormValid.value) {
@@ -230,7 +230,7 @@ const handleSave = () => {
   const updates = {
     name: editForm.value.name.trim() || '未命名',
     width: Number(editForm.value.width),
-    height: Number(editForm.value.height),
+    length: Number(editForm.value.length),
     quantity: Number(editForm.value.quantity)
   }
   
@@ -242,7 +242,7 @@ const handleCancel = () => {
 }
 
 const handleDelete = () => {
-  const confirmMessage = `确定要删除切割项目"${props.item.name || '未命名'}"吗？\n\n尺寸：${props.item.width} × ${props.item.height} ${props.unit}\n数量：${props.item.quantity}\n\n此操作不可撤销。`
+  const confirmMessage = `确定要删除切割项目"${props.item.name || '未命名'}"吗？\n\n尺寸：${props.item.width} × ${props.item.length} ${props.unit}\n数量：${props.item.quantity}\n\n此操作不可撤销。`
   
   if (confirm(confirmMessage)) {
     emit('delete', props.item)

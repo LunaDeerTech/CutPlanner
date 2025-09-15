@@ -32,6 +32,7 @@
         @edit-item="handleEditCuttingItem"
         @update-item="handleUpdateCuttingItem"
         @delete-item="handleDeleteCuttingItem"
+        @import-items="handleImportCuttingItems"
         @download-template="handleDownloadTemplate"
         @upload-template="handleUploadTemplate"
       />
@@ -153,8 +154,25 @@ const handleDownloadTemplate = () => {
 }
 
 const handleUploadTemplate = () => {
-  // TODO: 上传模板解析
-  alert('上传模板功能开发中...')
+  // 这个方法已经被替换为直接打开导入对话框，实际逻辑在CuttingListSection中
+  console.log('打开导入对话框...')
+}
+
+const handleImportCuttingItems = (items: CuttingItem[]) => {
+  // 批量添加导入的切割项目
+  items.forEach(item => {
+    const newItem: Omit<CuttingItem, 'id'> = {
+      length: item.length,
+      width: item.width,
+      quantity: item.quantity
+    }
+    
+    // 添加可选字段
+    if (item.name) newItem.name = item.name
+    
+    cuttingStore.addItem(newItem)
+  })
+  console.log(`已导入 ${items.length} 个切割项目`)
 }
 
 // 参数配置相关方法

@@ -12,10 +12,9 @@ export interface Material {
 export interface CuttingItem {
   id: string
   name?: string
-  width: number
-  height: number
+  length: number  // 长度
+  width: number   // 宽度
   quantity: number
-  allowRotation?: boolean
 }
 
 export interface CuttingResult {

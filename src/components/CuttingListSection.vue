@@ -40,14 +40,23 @@
       title="暂无切割清单"
       description="点击上方按钮添加切割项目或上传模板"
     />
+    
+    <!-- 导入对话框 -->
+    <ImportDialog 
+      :is-visible="showImportDialog" 
+      @close="showImportDialog = false"
+      @import="handleImportItems"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useSettingsStore } from '@/store/settings'
 import TemplateDropdownMenu from './ui/TemplateDropdownMenu.vue'
 import CuttingItemsTable from './ui/CuttingItemsTable.vue'
 import EmptyState from './ui/EmptyState.vue'
+import ImportDialog from './ui/ImportDialog.vue'
 import type { CuttingItem } from '@/models/types'
 
 const settingsStore = useSettingsStore()
@@ -63,9 +72,13 @@ const emit = defineEmits<{
   editItem: [item: CuttingItem]
   deleteItem: [item: CuttingItem]
   updateItem: [id: string, updates: Partial<CuttingItem>]
+  importItems: [items: CuttingItem[]]
   downloadTemplate: []
   uploadTemplate: []
 }>()
+
+// 响应式状态
+const showImportDialog = ref(false)
 
 // 事件处理方法
 const addCuttingItem = () => {
@@ -85,6 +98,10 @@ const handleDeleteItem = (item: CuttingItem) => {
 }
 
 const uploadTemplate = () => {
-  emit('uploadTemplate')
+  showImportDialog.value = true
+}
+
+const handleImportItems = (items: CuttingItem[]) => {
+  emit('importItems', items)
 }
 </script>

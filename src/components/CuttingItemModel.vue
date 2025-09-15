@@ -37,8 +37,27 @@
 
           <!-- 长度字段 -->
           <div>
-            <label for="width" class="block text-sm font-medium text-gray-700">
+            <label for="length" class="block text-sm font-medium text-gray-700">
               长度 ({{ settingsStore.settings.unit }}) *
+            </label>
+            <input
+              id="length"
+              v-model="formData.length"
+              type="number"
+              step="0.1"
+              min="0.1"
+              placeholder="输入长度"
+              class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              :class="errors.length ? 'border-red-500' : 'border-gray-300'"
+              @blur="validateField('length')"
+            />
+            <p v-if="errors.length" class="mt-1 text-sm text-red-600">{{ errors.length }}</p>
+          </div>
+
+          <!-- 宽度字段 -->
+          <div>
+            <label for="width" class="block text-sm font-medium text-gray-700">
+              宽度 ({{ settingsStore.settings.unit }}) *
             </label>
             <input
               id="width"
@@ -46,31 +65,12 @@
               type="number"
               step="0.1"
               min="0.1"
-              placeholder="输入长度"
+              placeholder="输入宽度"
               class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               :class="errors.width ? 'border-red-500' : 'border-gray-300'"
               @blur="validateField('width')"
             />
             <p v-if="errors.width" class="mt-1 text-sm text-red-600">{{ errors.width }}</p>
-          </div>
-
-          <!-- 宽度字段 -->
-          <div>
-            <label for="height" class="block text-sm font-medium text-gray-700">
-              宽度 ({{ settingsStore.settings.unit }}) *
-            </label>
-            <input
-              id="height"
-              v-model="formData.height"
-              type="number"
-              step="0.1"
-              min="0.1"
-              placeholder="输入宽度"
-              class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              :class="errors.height ? 'border-red-500' : 'border-gray-300'"
-              @blur="validateField('height')"
-            />
-            <p v-if="errors.height" class="mt-1 text-sm text-red-600">{{ errors.height }}</p>
           </div>
 
           <!-- 数量字段 -->
@@ -141,14 +141,14 @@ const emit = defineEmits<{
 const formData = ref({
   name: '',
   width: '',
-  height: '',
+  length: '',
   quantity: ''
 })
 
 // 错误信息
 const errors = ref({
   width: '',
-  height: '',
+  length: '',
   quantity: ''
 })
 
@@ -158,10 +158,10 @@ const isEditMode = computed(() => !!props.editItem)
 // 表单验证状态
 const isFormValid = computed(() => {
   return formData.value.width && 
-         formData.value.height && 
+         formData.value.length && 
          formData.value.quantity &&
          !errors.value.width && 
-         !errors.value.height && 
+         !errors.value.length && 
          !errors.value.quantity
 })
 
@@ -170,12 +170,12 @@ const resetForm = () => {
   formData.value = {
     name: '',
     width: '',
-    height: '',
+    length: '',
     quantity: ''
   }
   errors.value = {
     width: '',
-    height: '',
+    length: '',
     quantity: ''
   }
 }
@@ -186,7 +186,7 @@ watch(() => props.editItem, (editItem) => {
     formData.value = {
       name: editItem.name || '',
       width: editItem.width.toString(),
-      height: editItem.height.toString(),
+      length: editItem.length.toString(),
       quantity: editItem.quantity.toString()
     }
   } else {
@@ -197,15 +197,15 @@ watch(() => props.editItem, (editItem) => {
 // 监听弹窗显示状态，重置错误
 watch(() => props.isVisible, (visible) => {
   if (visible) {
-    errors.value = { width: '', height: '', quantity: '' }
+    errors.value = { width: '', length: '', quantity: '' }
   }
 })
 
 // 验证单个字段
-const validateField = (field: 'width' | 'height' | 'quantity') => {
+const validateField = (field: 'width' | 'length' | 'quantity') => {
   const value = formData.value[field]
   
-  if (field === 'width' || field === 'height') {
+  if (field === 'width' || field === 'length') {
     const validation = validateDimension(value, settingsStore.settings.unit)
     errors.value[field] = validation.error || ''
   } else if (field === 'quantity') {
@@ -233,7 +233,7 @@ const handleCancel = () => {
 const handleSubmit = () => {
   // 验证所有字段
   validateField('width')
-  validateField('height')
+  validateField('length')
   validateField('quantity')
   
   if (!isFormValid.value) {
@@ -244,7 +244,7 @@ const handleSubmit = () => {
   const itemData = {
     name: trimmedName || '未命名',
     width: Number(formData.value.width),
-    height: Number(formData.value.height),
+    length: Number(formData.value.length),
     quantity: Number(formData.value.quantity)
   }
   
