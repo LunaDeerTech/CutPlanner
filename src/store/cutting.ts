@@ -58,7 +58,7 @@ export const useCuttingStore = defineStore('cutting', () => {
 
   const totalArea = computed(() => {
     return items.value.reduce((sum, item) => {
-      return sum + (item.width * item.height * item.quantity)
+      return sum + (item.width * item.length * item.quantity)
     }, 0)
   })
 
