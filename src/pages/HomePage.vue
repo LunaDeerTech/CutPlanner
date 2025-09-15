@@ -45,9 +45,11 @@
 
       <!-- 4. 切割示意图区域 -->
       <CuttingResultSection
-        :has-cutting-result="hasCuttingResult"
+        :has-cutting-result="cuttingStore.hasResults"
+        :cutting-results="cuttingStore.results"
+        :materials="materialStore.materials"
+        :items="cuttingStore.items"
         :can-generate="canGenerate"
-        v-bind="hasCuttingResult && cuttingResult ? { cuttingResult } : {}"
         @generate-cutting-plan="generateCuttingPlan"
         @export-p-n-g="handleExportPNG"
         @export-report="handleExportReport"
@@ -83,6 +85,7 @@ import SettingsSection from '@/components/SettingsSection.vue'
 import CuttingResultSection from '@/components/CuttingResultSection.vue'
 import SettingsModel from '@/components/SettingsModel.vue'
 import CuttingItemModel from '@/components/CuttingItemModel.vue'
+import { CuttingPlannerService } from '@/services/cutting/CuttingPlannerService'
 import type { CuttingItem, CuttingSettings } from '@/models/types'
 
 const materialStore = useMaterialStore()
@@ -95,14 +98,6 @@ const showSettingsModel = ref(false)
 // 切割项目弹窗状态
 const showCuttingItemModel = ref(false)
 const editingCuttingItem = ref<CuttingItem | null>(null)
-
-// 切割结果状态
-const hasCuttingResult = ref(false)
-const cuttingResult = ref<{
-  utilizationRate: number
-  wasteArea: number
-  cutCount: number
-}>()
 
 // 计算属性：是否可以生成切割方案
 const canGenerate = computed(() => {
@@ -172,26 +167,56 @@ const handleSettingsSaved = (settings: CuttingSettings) => {
 }
 
 // 生成切割方案
-const generateCuttingPlan = () => {
+const generateCuttingPlan = async () => {
   if (!canGenerate.value) {
     alert('请先添加原料和切割清单')
     return
   }
   
-  // TODO: 执行切割算法
-  alert('生成切割方案功能开发中...')
-  // 模拟生成结果
-  hasCuttingResult.value = true
-  cuttingResult.value = {
-    utilizationRate: 0.85,
-    wasteArea: 15000,
-    cutCount: 12
+  try {
+    // 设置计算状态
+    cuttingStore.setCalculating(true)
+    cuttingStore.clearResults()
+    
+    console.log('开始生成切割方案...')
+    console.log('材料列表:', materialStore.materials)
+    console.log('切割项目:', cuttingStore.items)
+    console.log('设置:', settingsStore.settings)
+    
+    // 创建切割规划服务
+    const cuttingPlanner = new CuttingPlannerService(settingsStore.settings)
+    
+    // 执行切割算法
+    const results = await cuttingPlanner.calculateOptimalLayout(
+      materialStore.materials,
+      cuttingStore.items
+    )
+    
+    console.log('切割方案生成完成:', results)
+    
+    // 保存结果
+    cuttingStore.setResults(results)
+    
+    // 显示成功信息
+    if (results.length > 0) {
+      const totalPieces = results.reduce((sum: number, result: any) => sum + result.cuts.length, 0)
+      const materialType = materialStore.materials[0]?.name || '所选料板'
+      alert(`切割方案生成成功！\n料板类型: ${materialType}\n使用数量: ${results.length} 张\n切割零件: ${totalPieces} 个\n\n算法已自动选择最优的料板使用数量`)
+    } else {
+      alert('无法生成切割方案，请检查材料和切割项目的尺寸')
+    }
+    
+  } catch (error) {
+    console.error('生成切割方案时出错:', error)
+    alert(`生成切割方案时出错: ${error instanceof Error ? error.message : '未知错误'}`)
+  } finally {
+    cuttingStore.setCalculating(false)
   }
 }
 
 // 导出功能
 const handleExportPNG = () => {
-  if (!hasCuttingResult.value) {
+  if (!cuttingStore.hasResults) {
     alert('请先生成切割方案')
     return
   }
@@ -200,7 +225,7 @@ const handleExportPNG = () => {
 }
 
 const handleExportReport = () => {
-  if (!hasCuttingResult.value) {
+  if (!cuttingStore.hasResults) {
     alert('请先生成切割方案')
     return
   }

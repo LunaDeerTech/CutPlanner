@@ -62,11 +62,14 @@
           @change="updateOptimizationStrategy"
           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         >
-          <option value="first-fit">首次适应</option>
-          <option value="best-fit">最佳适应</option>
-          <option value="bottom-left">左下角</option>
-          <option value="genetic">遗传算法</option>
+          <option value="first-fit">首次适应 (已实现)</option>
+          <option value="best-fit" disabled>最佳适应 (开发中)</option>
+          <option value="bottom-left" disabled>左下角 (开发中)</option>
+          <option value="genetic" disabled>遗传算法 (开发中)</option>
         </select>
+        <p class="mt-1 text-xs text-gray-500">
+          当前只有"首次适应"算法可用，其他算法正在开发中
+        </p>
       </div>
     </div>
   </div>

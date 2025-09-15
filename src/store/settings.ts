@@ -9,7 +9,7 @@ export const useSettingsStore = defineStore('settings', () => {
     kerfWidth: 3, // 3mm default kerf width
     margin: 5, // 5mm default margin
     allowRotation: true,
-    optimizationStrategy: 'best-fit'
+    optimizationStrategy: 'first-fit' // 使用已实现的算法
   }
 
   const settings = ref<CuttingSettings>({ ...defaultSettings })
