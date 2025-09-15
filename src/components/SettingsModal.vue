@@ -103,41 +103,6 @@
               切割时预留的安全边距
             </p>
           </div>
-
-          <!-- 允许旋转 -->
-          <div>
-            <label class="flex items-center">
-              <input
-                v-model="localSettings.allowRotation"
-                type="checkbox"
-                class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              >
-              <span class="ml-2 text-sm text-gray-700">允许旋转切割项目</span>
-            </label>
-            <p class="mt-1 text-xs text-gray-500">
-              启用后算法会尝试旋转切割项目以提高利用率
-            </p>
-          </div>
-
-          <!-- 优化策略 -->
-          <div>
-            <label for="optimizationStrategy" class="block text-sm font-medium text-gray-700 mb-2">
-              优化策略
-            </label>
-            <select
-              id="optimizationStrategy"
-              v-model="localSettings.optimizationStrategy"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="first-fit">首次适应 (First Fit)</option>
-              <option value="best-fit">最佳适应 (Best Fit)</option>
-              <option value="bottom-left">左下角 (Bottom Left)</option>
-              <option value="genetic">遗传算法 (Genetic)</option>
-            </select>
-            <p class="mt-1 text-xs text-gray-500">
-              不同算法在速度和优化效果间有不同权衡
-            </p>
-          </div>
         </div>
 
         <!-- 弹窗底部按钮 -->

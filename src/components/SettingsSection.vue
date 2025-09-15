@@ -13,7 +13,7 @@
             type="number"
             min="0"
             step="0.1"
-            class="block w-full pr-12 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="3.0"
           />
           <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -32,7 +32,7 @@
             type="number"
             min="0"
             step="0.1"
-            class="block w-full pr-12 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="5.0"
           />
           <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -61,7 +61,7 @@
         <select
           :value="settings.optimizationStrategy"
           @change="updateOptimizationStrategy"
-          class="block w-full border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="first-fit">首次适应</option>
           <option value="best-fit">最佳适应</option>
