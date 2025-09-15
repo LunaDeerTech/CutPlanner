@@ -7,6 +7,7 @@ import { LOCAL_STORAGE_KEYS } from '@/constants'
 export const useMaterialStore = defineStore('material', () => {
   const materials = ref<Material[]>([])
   const currentMaterial = ref<Material | null>(null)
+  const selectedMaterial = ref<Material | null>(null)
   
   // 从localStorage加载数据
   const loadMaterials = () => {
@@ -103,6 +104,10 @@ export const useMaterialStore = defineStore('material', () => {
     currentMaterial.value = material
   }
 
+  const setSelectedMaterial = (material: Material | null) => {
+    selectedMaterial.value = material
+  }
+
   const getMaterialById = (id: string) => {
     return materials.value.find(m => m.id === id)
   }
@@ -127,12 +132,14 @@ export const useMaterialStore = defineStore('material', () => {
   return {
     materials,
     currentMaterial,
+    selectedMaterial,
     materialCount,
     materialsByUnit,
     addMaterial,
     updateMaterial,
     removeMaterial,
     setCurrentMaterial,
+    setSelectedMaterial,
     getMaterialById,
     validateMaterial,
     loadMaterials,
