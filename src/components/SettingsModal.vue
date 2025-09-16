@@ -103,6 +103,36 @@
               切割时预留的安全边距
             </p>
           </div>
+
+          <!-- 料板方向 -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              料板方向
+            </label>
+            <div class="flex space-x-4">
+              <label class="flex items-center">
+                <input
+                  v-model="localSettings.materialOrientation"
+                  type="radio"
+                  :value="MaterialOrientation.VERTICAL"
+                  class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                >
+                <span class="ml-2 text-sm text-gray-700">竖向</span>
+              </label>
+              <label class="flex items-center">
+                <input
+                  v-model="localSettings.materialOrientation"
+                  type="radio"
+                  :value="MaterialOrientation.HORIZONTAL"
+                  class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                >
+                <span class="ml-2 text-sm text-gray-700">横向</span>
+              </label>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">
+              决定料板的摆放方向（竖向：高>宽，横向：宽>高）
+            </p>
+          </div>
         </div>
 
         <!-- 弹窗底部按钮 -->
@@ -137,6 +167,7 @@
 import { ref, watch } from 'vue'
 import { useSettingsStore } from '@/store/settings'
 import type { CuttingSettings } from '@/models/types'
+import { MaterialOrientation } from '@/models/types'
 
 interface Props {
   isVisible: boolean

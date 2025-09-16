@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { CuttingSettings } from '@/models/types'
+import { MaterialOrientation } from '@/models/types'
 
 export const useSettingsStore = defineStore('settings', () => {
   // Default cutting settings
@@ -9,6 +10,7 @@ export const useSettingsStore = defineStore('settings', () => {
     kerfWidth: 3, // 3mm default kerf width
     margin: 5, // 5mm default margin
     allowRotation: true,
+    materialOrientation: MaterialOrientation.VERTICAL, // 默认竖向
     optimizationStrategy: 'first-fit' // 使用已实现的算法
   }
 

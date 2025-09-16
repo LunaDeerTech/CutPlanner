@@ -108,23 +108,23 @@ const props = defineProps<{
 }>()
 
 // 计算材料信息
-const material = computed(() => findMaterialByResultId(props.result.materialId, props.materials))
+const material = computed(() => findMaterialByResultId(props.result.materialId, props.materials, props.result))
 
 // 计算SVG尺寸
-const svgWidth = computed(() => getSvgWidth(props.result.materialId, props.materials))
-const svgHeight = computed(() => getSvgHeight(props.result.materialId, props.materials))
-const scaleFactor = computed(() => getScaleFactor(props.result.materialId, props.materials))
+const svgWidth = computed(() => getSvgWidth(props.result.materialId, props.materials, props.result))
+const svgHeight = computed(() => getSvgHeight(props.result.materialId, props.materials, props.result))
+const scaleFactor = computed(() => getScaleFactor(props.result.materialId, props.materials, props.result))
 
 // 计算材料尺寸文本
-const materialDimensions = computed(() => getMaterialDimensions(props.result.materialId, props.materials))
+const materialDimensions = computed(() => getMaterialDimensions(props.result.materialId, props.materials, props.result))
 
 // 计算所有切割件的缩放坐标和尺寸
 const scaledCuts = computed(() => {
   return props.result.cuts.map(cut => ({
-    x: scaleCoordinate(cut.x, props.result.materialId, props.materials),
-    y: scaleCoordinate(cut.y, props.result.materialId, props.materials),
-    width: scaleDimension(cut.width, props.result.materialId, props.materials),
-    height: scaleDimension(cut.height, props.result.materialId, props.materials)
+    x: scaleCoordinate(cut.x, props.result.materialId, props.materials, props.result),
+    y: scaleCoordinate(cut.y, props.result.materialId, props.materials, props.result),
+    width: scaleDimension(cut.width, props.result.materialId, props.materials, props.result),
+    height: scaleDimension(cut.height, props.result.materialId, props.materials, props.result)
   }))
 })
 </script>

@@ -70,7 +70,7 @@
             class="bg-white rounded-lg p-4 shadow-sm"
           >
             <h5 class="text-lg font-medium text-gray-900 mb-3">
-              料板 {{ index + 1 }} - {{ getMaterialName(result.materialId) }}
+              料板 {{ index + 1 }} - {{ getMaterialName(result.materialId, result) }}
               <span class="text-sm font-normal text-gray-500 ml-2">
                 (利用率: {{ (100 - result.wastePercentage).toFixed(1) }}%, 切割件: {{ result.cuts.length }})
               </span>
@@ -152,7 +152,7 @@ const getPlaceholderText = (): string => {
 }
 
 // 获取材料名称（使用工具函数）
-const getMaterialName = (materialId: string): string => {
-  return getMaterialNameUtil(materialId, props.materials || [])
+const getMaterialName = (materialId: string, result?: CuttingResult): string => {
+  return getMaterialNameUtil(materialId, props.materials || [], result)
 }
 </script>

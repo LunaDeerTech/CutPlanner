@@ -54,6 +54,19 @@
         </select>
       </div>
       
+      <!-- 料板方向 -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">料板方向</label>
+        <select
+          :value="settings.materialOrientation"
+          @change="updateMaterialOrientation"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option :value="MaterialOrientation.VERTICAL">竖向 - 料板高度大于宽度</option>
+          <option :value="MaterialOrientation.HORIZONTAL">横向 - 料板宽度大于高度</option>
+        </select>
+      </div>
+      
       <!-- 算法选择 -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">优化算法</label>
@@ -75,6 +88,7 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue'
 import type { CuttingSettings } from '@/models/types'
+import { MaterialOrientation } from '@/models/types'
 
 // Props
 defineProps<{
@@ -102,6 +116,11 @@ const updateMargin = (event: Event) => {
 const updateAllowRotation = (event: Event) => {
   const target = event.target as HTMLSelectElement
   emit('updateSettings', { allowRotation: target.value === 'true' })
+}
+
+const updateMaterialOrientation = (event: Event) => {
+  const target = event.target as HTMLSelectElement
+  emit('updateSettings', { materialOrientation: target.value as MaterialOrientation })
 }
 
 const updateOptimizationStrategy = (event: Event) => {

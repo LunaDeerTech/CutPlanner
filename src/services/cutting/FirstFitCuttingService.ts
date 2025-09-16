@@ -1,4 +1,5 @@
 import type { Material, CuttingItem, CuttingResult, CutPiece, CuttingSettings } from '@/models/types'
+import { MaterialOrientation } from '@/models/types'
 
 /**
  * Rectangle representation for placement calculation
@@ -31,6 +32,9 @@ export class FirstFitCuttingService {
     const cuts: CutPiece[] = []
     const placedRectangles: Rectangle[] = []
     
+    // 根据料板方向调整料板尺寸
+    const adjustedMaterial = this.adjustMaterialOrientation(material)
+    
     // Expand items by quantity
     const expandedItems = this.expandItemsByQuantity(items)
     
@@ -41,7 +45,7 @@ export class FirstFitCuttingService {
     
     for (const item of expandedItems) {
       const placement = this.findBestPlacement(
-        material,
+        adjustedMaterial,
         item,
         placedRectangles
       )
@@ -68,8 +72,8 @@ export class FirstFitCuttingService {
       }
     }
     
-    // Calculate waste and utilization
-    const totalMaterialArea = material.width * material.height
+    // Calculate waste and utilization using adjusted material dimensions
+    const totalMaterialArea = adjustedMaterial.width * adjustedMaterial.height
     const utilizedArea = cuts.reduce((sum, cut) => sum + (cut.width * cut.height), 0)
     const totalWasteArea = totalMaterialArea - utilizedArea
     const wastePercentage = (totalWasteArea / totalMaterialArea) * 100
@@ -79,8 +83,38 @@ export class FirstFitCuttingService {
       cuts,
       wastePercentage,
       totalWasteArea,
-      utilizedArea
+      utilizedArea,
+      actualMaterial: adjustedMaterial // 包含调整后的材料尺寸
     }
+  }
+
+  /**
+   * 根据料板方向调整料板尺寸
+   */
+  private adjustMaterialOrientation(material: Material): Material {
+    // 如果设置为横向，且当前料板是竖向的（高度 > 宽度），则交换长宽
+    if (this.settings.materialOrientation === MaterialOrientation.HORIZONTAL) {
+      if (material.height > material.width) {
+        return {
+          ...material,
+          width: material.height,
+          height: material.width
+        }
+      }
+    }
+    // 如果设置为竖向，且当前料板是横向的（宽度 > 高度），则交换长宽
+    else if (this.settings.materialOrientation === MaterialOrientation.VERTICAL) {
+      if (material.width > material.height) {
+        return {
+          ...material,
+          width: material.height,
+          height: material.width
+        }
+      }
+    }
+    
+    // 其他情况保持原尺寸
+    return material
   }
 
   /**
@@ -165,6 +199,7 @@ export class FirstFitCuttingService {
     // Try grid positions with kerf width spacing
     const stepSize = Math.max(1, this.settings.kerfWidth)
     
+    // 简单的从左到右，从上到下搜索
     for (let y = startY; y <= effectiveHeight - height + this.settings.margin; y += stepSize) {
       for (let x = startX; x <= effectiveWidth - width + this.settings.margin; x += stepSize) {
         

@@ -23,6 +23,7 @@ export interface CuttingResult {
   wastePercentage: number
   totalWasteArea: number
   utilizedArea: number
+  actualMaterial?: Material // 实际使用的材料尺寸（考虑料板方向调整）
 }
 
 export interface CutPiece {
@@ -35,11 +36,18 @@ export interface CutPiece {
   rotated: boolean
 }
 
+// 料板方向枚举
+export enum MaterialOrientation {
+  VERTICAL = 'vertical',   // 竖向
+  HORIZONTAL = 'horizontal' // 横向
+}
+
 export interface CuttingSettings {
   unit: 'mm' | 'inch' // 默认单位
   kerfWidth: number // 锯片厚度
   margin: number // 边距
   allowRotation: boolean
+  materialOrientation: MaterialOrientation // 料板方向
   optimizationStrategy: 'first-fit' | 'best-fit' | 'bottom-left' | 'genetic'
 }
 

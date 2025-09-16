@@ -1,4 +1,4 @@
-import type { Material, CuttingItem } from '@/models/types'
+import type { Material, CuttingItem, CuttingResult } from '@/models/types'
 
 // SVG 相关常量
 export const MIN_SVG_SIZE = 300
@@ -25,9 +25,14 @@ export const CUTTING_BORDER_COLORS = {
 }
 
 /**
- * 根据材料ID查找对应的材料信息
+ * 根据材料ID查找对应的材料信息，优先使用切割结果中的实际材料尺寸
  */
-export function findMaterialByResultId(materialId: string, materials: Material[]): Material | undefined {
+export function findMaterialByResultId(materialId: string, materials: Material[], result?: CuttingResult): Material | undefined {
+  // 优先使用切割结果中的实际材料尺寸
+  if (result && result.actualMaterial) {
+    return result.actualMaterial
+  }
+  
   // 首先尝试精确匹配
   let material = materials.find(m => m.id === materialId)
   if (material) return material
@@ -40,10 +45,10 @@ export function findMaterialByResultId(materialId: string, materials: Material[]
 }
 
 /**
- * 计算SVG宽度
+ * 计算SVG宽度，支持使用切割结果中的实际材料
  */
-export function getSvgWidth(materialId: string, materials: Material[]): number {
-  const material = findMaterialByResultId(materialId, materials)
+export function getSvgWidth(materialId: string, materials: Material[], result?: CuttingResult): number {
+  const material = findMaterialByResultId(materialId, materials, result)
   if (!material) return MIN_SVG_SIZE
   
   // 根据材料的宽高比来决定显示尺寸
@@ -60,10 +65,10 @@ export function getSvgWidth(materialId: string, materials: Material[]): number {
 }
 
 /**
- * 计算SVG高度
+ * 计算SVG高度，支持使用切割结果中的实际材料
  */
-export function getSvgHeight(materialId: string, materials: Material[]): number {
-  const material = findMaterialByResultId(materialId, materials)
+export function getSvgHeight(materialId: string, materials: Material[], result?: CuttingResult): number {
+  const material = findMaterialByResultId(materialId, materials, result)
   if (!material) return MIN_SVG_SIZE
   
   // 根据材料的宽高比来决定显示尺寸
@@ -80,16 +85,16 @@ export function getSvgHeight(materialId: string, materials: Material[]): number 
 }
 
 /**
- * 计算缩放比例
+ * 计算缩放比例，支持使用切割结果中的实际材料
  */
-export function getScaleFactor(materialId: string, materials: Material[]): number {
-  const material = findMaterialByResultId(materialId, materials)
+export function getScaleFactor(materialId: string, materials: Material[], result?: CuttingResult): number {
+  const material = findMaterialByResultId(materialId, materials, result)
   if (!material) {
     console.warn('找不到材料，使用默认缩放:', materialId)
     return 0.5 // 默认缩放比例
   }
   
-  const svgWidth = getSvgWidth(materialId, materials)
+  const svgWidth = getSvgWidth(materialId, materials, result)
   const scaleFactor = svgWidth / material.width
   
   console.log(`材料 ${materialId} 缩放信息:`, {
@@ -104,24 +109,24 @@ export function getScaleFactor(materialId: string, materials: Material[]): numbe
 }
 
 /**
- * 缩放坐标
+ * 缩放坐标，支持使用切割结果中的实际材料
  */
-export function scaleCoordinate(coordinate: number, materialId: string, materials: Material[]): number {
-  return coordinate * getScaleFactor(materialId, materials)
+export function scaleCoordinate(coordinate: number, materialId: string, materials: Material[], result?: CuttingResult): number {
+  return coordinate * getScaleFactor(materialId, materials, result)
 }
 
 /**
- * 缩放尺寸
+ * 缩放尺寸，支持使用切割结果中的实际材料
  */
-export function scaleDimension(dimension: number, materialId: string, materials: Material[]): number {
-  return dimension * getScaleFactor(materialId, materials)
+export function scaleDimension(dimension: number, materialId: string, materials: Material[], result?: CuttingResult): number {
+  return dimension * getScaleFactor(materialId, materials, result)
 }
 
 /**
- * 获取材料名称
+ * 获取材料名称，支持使用切割结果中的实际材料
  */
-export function getMaterialName(materialId: string, materials: Material[]): string {
-  const material = findMaterialByResultId(materialId, materials)
+export function getMaterialName(materialId: string, materials: Material[], result?: CuttingResult): string {
+  const material = findMaterialByResultId(materialId, materials, result)
   
   // 调试信息
   console.log('查找材料:', materialId, '找到:', material?.name)
@@ -130,10 +135,10 @@ export function getMaterialName(materialId: string, materials: Material[]): stri
 }
 
 /**
- * 获取材料尺寸文本
+ * 获取材料尺寸文本，支持使用切割结果中的实际材料
  */
-export function getMaterialDimensions(materialId: string, materials: Material[]): string {
-  const material = findMaterialByResultId(materialId, materials)
+export function getMaterialDimensions(materialId: string, materials: Material[], result?: CuttingResult): string {
+  const material = findMaterialByResultId(materialId, materials, result)
   if (!material) {
     console.log('找不到材料尺寸:', materialId)
     return ''
