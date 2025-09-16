@@ -138,6 +138,43 @@ export class FirstFitCuttingService {
   }
 
   /**
+   * Get allowed orientations for an item based on its rotation setting
+   * @param item The cutting item to get orientations for
+   * @returns Array of allowed orientations with dimensions and rotation state
+   */
+  private getOrientationsForItem(item: CuttingItem): Array<{ width: number; height: number; rotated: boolean }> {
+    const orientations: Array<{ width: number; height: number; rotated: boolean }> = []
+    
+    switch (item.rotatation) {
+      case 'fixed-default':
+        // 固定A方向：不旋转，使用原始方向 (width x length)
+        // 这意味着按照用户输入的宽度x长度放置
+        orientations.push({ width: item.width, height: item.length, rotated: false })
+        break
+      
+      case 'fixed-rotate':
+        // 固定B方向：强制旋转90度 (length x width)
+        // 这意味着将目标板旋转90度，长度变成宽度，宽度变成长度
+        orientations.push({ width: item.length, height: item.width, rotated: true })
+        break
+      
+      case 'auto':
+      default:
+        // 自动方向：根据全局设置决定是否允许旋转
+        // 首先尝试原始方向
+        orientations.push({ width: item.width, height: item.length, rotated: false })
+        
+        // 如果全局设置允许旋转且目标板不是正方形，则也尝试旋转方向
+        if (this.settings.allowRotation && item.width !== item.length) {
+          orientations.push({ width: item.length, height: item.width, rotated: true })
+        }
+        break
+    }
+    
+    return orientations
+  }
+
+  /**
    * Find the best placement for an item on the material
    */
   private findBestPlacement(
@@ -146,14 +183,8 @@ export class FirstFitCuttingService {
     placedRectangles: Rectangle[]
   ): { x: number; y: number; width: number; height: number; rotated: boolean } | null {
     
-    // Try both orientations if rotation is allowed
-    const orientations = [
-      { width: item.width, height: item.length, rotated: false },
-    ]
-    
-    if (this.settings.allowRotation && item.width !== item.length) {
-      orientations.push({ width: item.length, height: item.width, rotated: true })
-    }
+    // 根据item的rotatation设置获取允许的方向
+    const orientations = this.getOrientationsForItem(item)
     
     for (const orientation of orientations) {
       // Try to place at each possible position

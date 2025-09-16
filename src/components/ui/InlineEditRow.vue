@@ -87,6 +87,26 @@
       </div>
     </td>
 
+    <!-- 旋转方向列 -->
+    <td class="px-6 py-4 whitespace-nowrap">
+      <div v-if="isEditing">
+        <select
+          v-model="editForm.rotatation"
+          class="w-24 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="auto">自动（跟随算法）</option>
+          <option value="fixed-default">固定-默认</option>
+          <option value="fixed-rotate">固定-旋转90°</option>
+        </select>
+      </div>
+      <div v-else class="text-sm text-gray-900">
+        <span v-if="item.rotatation === 'auto'" class="text-blue-600">自动（跟随算法）</span>
+        <span v-else-if="item.rotatation === 'fixed-default'" class="text-green-600">固定-默认</span>
+        <span v-else-if="item.rotatation === 'fixed-rotate'" class="text-orange-600">固定-旋转90°</span>
+        <span v-else class="text-gray-400">未设置</span>
+      </div>
+    </td>
+
     <!-- 操作列 -->
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
       <div v-if="isEditing" class="flex space-x-2">
@@ -153,7 +173,8 @@ const editForm = ref({
   name: '',
   width: '',
   length: '',
-  quantity: ''
+  quantity: '',
+  rotatation: 'auto'
 })
 
 // 错误状态
@@ -180,7 +201,8 @@ watch(() => props.isEditing, (isEditing) => {
       name: props.item.name || '',
       width: props.item.width.toString(),
       length: props.item.length.toString(),
-      quantity: props.item.quantity.toString()
+      quantity: props.item.quantity.toString(),
+      rotatation: props.item.rotatation || 'auto'
     }
     errors.value = {
       width: '',
@@ -231,7 +253,8 @@ const handleSave = () => {
     name: editForm.value.name.trim() || '未命名',
     width: Number(editForm.value.width),
     length: Number(editForm.value.length),
-    quantity: Number(editForm.value.quantity)
+    quantity: Number(editForm.value.quantity),
+    rotatation: editForm.value.rotatation as 'auto' | 'fixed-default' | 'fixed-rotate'
   }
   
   emit('save', props.item.id, updates)

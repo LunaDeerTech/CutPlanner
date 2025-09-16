@@ -15,6 +15,7 @@ export interface CuttingItem {
   length: number  // 长度
   width: number   // 宽度
   quantity: number
+  rotatation: string // 旋转 'auto'(根据参数配置区域由算法决定) | 'fixed-default'(固定为默认方向) | 'fixed-rotate'(固定为旋转90度方向)
 }
 
 export interface CuttingResult {

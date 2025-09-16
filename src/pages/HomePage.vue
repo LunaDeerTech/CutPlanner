@@ -170,7 +170,8 @@ const handleImportCuttingItems = (items: CuttingItem[]) => {
     const newItem: Omit<CuttingItem, 'id'> = {
       length: item.length,
       width: item.width,
-      quantity: item.quantity
+      quantity: item.quantity,
+      rotatation: item.rotatation || 'auto' // 默认旋转设置为 'auto'
     }
     
     // 添加可选字段

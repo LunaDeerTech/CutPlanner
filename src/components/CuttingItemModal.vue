@@ -245,7 +245,8 @@ const handleSubmit = () => {
     name: trimmedName || '未命名',
     width: Number(formData.value.width),
     length: Number(formData.value.length),
-    quantity: Number(formData.value.quantity)
+    quantity: Number(formData.value.quantity),
+    rotatation: 'auto' // 默认旋转设置为 'auto'
   }
   
   if (isEditMode.value && props.editItem) {
