@@ -1,6 +1,7 @@
 import type { Material, CuttingItem, CuttingResult, CuttingSettings } from '@/models/types'
 import { FirstFitCuttingService } from './FirstFitCuttingService'
 import { GuillotineCuttingService } from './GuillotineCuttingService'
+import { GeneticCuttingService } from './GeneticCuttingService'
 
 /**
  * Main cutting planner service that coordinates different cutting algorithms
@@ -52,7 +53,7 @@ export class CuttingPlannerService {
         throw new Error('左下角算法尚未实现，请选择"首次适应"或"断头台"算法')
       
       case 'genetic':
-        throw new Error('遗传算法尚未实现，请选择"首次适应"或"断头台"算法')
+        return this.calculateGeneticLayoutUnlimited(materials, items, selectedMaterial)
       
       default:
         console.warn(`未知的优化策略: ${this.settings.optimizationStrategy}，使用断头台算法`)
@@ -175,6 +176,104 @@ export class CuttingPlannerService {
   }
 
   /**
+   * Calculate layout using genetic algorithm with unlimited materials
+   * Uses evolutionary optimization for improved utilization rates
+   * This algorithm uses genetic algorithms to optimize the sequence and rotation of cutting items
+   */
+  private calculateGeneticLayoutUnlimited(
+    _materials: Material[],
+    items: CuttingItem[],
+    selectedMaterial: Material
+  ): CuttingResult[] {
+    const results: CuttingResult[] = []
+    // Create a deep copy of items to avoid modifying the original cutting list
+    const remainingItems = items.map(item => ({ ...item }))
+
+    const chosenMaterial = selectedMaterial
+    
+    let sheetNumber = 1
+    
+    // Keep using new sheets until all items are placed
+    while (remainingItems.length > 0) {
+      // Create a new sheet of the selected material type
+      const currentSheet: Material = {
+        ...chosenMaterial,
+        id: `${chosenMaterial.id}_sheet_${sheetNumber}`,
+        name: `${chosenMaterial.name} - 第${sheetNumber}张`
+      }
+
+      // Configure genetic algorithm parameters based on problem size
+      const totalItems = remainingItems.reduce((sum, item) => sum + item.quantity, 0)
+      const geneticParams = this.getGeneticParameters(totalItems)
+      
+      const cuttingService = new GeneticCuttingService(this.settings, geneticParams)
+      const result = cuttingService.calculateLayout(currentSheet, remainingItems)
+      
+      if (result.cuts.length === 0) {
+        // No items could be placed on this sheet
+        console.warn('无法在当前料板上放置任何项目，可能存在过大的切割项目')
+        break
+      }
+      
+      results.push(result)
+      
+      // Remove successfully placed items from remaining items
+      this.updateRemainingItems(remainingItems, result)
+      
+      sheetNumber++
+      
+      // Safety check to prevent infinite loops
+      if (sheetNumber > 100) {
+        console.error('使用料板数量超过100张，停止计算以防无限循环')
+        break
+      }
+    }
+
+    // Add summary information
+    this.addSummaryInformation(results, items)
+
+    return results
+  }
+
+  /**
+   * Get genetic algorithm parameters based on problem size
+   */
+  private getGeneticParameters(totalItems: number) {
+    // Adjust parameters based on problem complexity
+    if (totalItems <= 20) {
+      return {
+        populationSize: 30,
+        maxGenerations: 50,
+        crossoverRate: 0.8,
+        mutationRate: 0.15,
+        eliteRatio: 0.15,
+        convergenceThreshold: 0.5,
+        maxStagnantGenerations: 15
+      }
+    } else if (totalItems <= 50) {
+      return {
+        populationSize: 50,
+        maxGenerations: 100,
+        crossoverRate: 0.8,
+        mutationRate: 0.1,
+        eliteRatio: 0.1,
+        convergenceThreshold: 0.3,
+        maxStagnantGenerations: 20
+      }
+    } else {
+      return {
+        populationSize: 80,
+        maxGenerations: 200,
+        crossoverRate: 0.85,
+        mutationRate: 0.08,
+        eliteRatio: 0.08,
+        convergenceThreshold: 0.2,
+        maxStagnantGenerations: 30
+      }
+    }
+  }
+
+  /**
    * Select the best material type for cutting
    * Currently selects the largest material by area
    * @deprecated This method is no longer used since material selection is now required
@@ -200,8 +299,22 @@ export class CuttingPlannerService {
     const placedCounts = new Map<string, number>()
     
     result.cuts.forEach(cut => {
-      // Extract original item ID (remove the "_n" suffix from expanded items)
-      const originalItemId = cut.itemId.split('_').slice(0, -1).join('_')
+      // Extract original item ID (remove the "_n_n" or "_n" suffix from expanded items)
+      // Handle both single and double expansion formats
+      let originalItemId = cut.itemId
+      
+      // Pattern for double expansion: originalId_n_n
+      const doubleExpansionMatch = cut.itemId.match(/^(.+)_\d+_\d+$/)
+      if (doubleExpansionMatch) {
+        originalItemId = doubleExpansionMatch[1]
+      } else {
+        // Pattern for single expansion: originalId_n
+        const singleExpansionMatch = cut.itemId.match(/^(.+)_\d+$/)
+        if (singleExpansionMatch) {
+          originalItemId = singleExpansionMatch[1]
+        }
+      }
+      
       const currentCount = placedCounts.get(originalItemId) || 0
       placedCounts.set(originalItemId, currentCount + 1)
     })

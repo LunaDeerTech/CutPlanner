@@ -123,8 +123,8 @@
 
           <div v-if="showOptimizationMenu" class="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-10">
             <button @click="onSelectOptimization('guillotine')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">断头台算法 (推荐)</button>
-            <button @click="onSelectOptimization('genetic')" class="w-full text-left px-4 py-2 text-sm text-gray-400" disabled>遗传算法 (开发中)</button>
-            <button @click="onSelectOptimization('first-fit')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">原点适应</button>
+            <button @click="onSelectOptimization('genetic')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">遗传算法（更优）</button>
+            <button @click="onSelectOptimization('first-fit')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">原点适应（不推荐）</button>
             <button @click="onSelectOptimization('best-fit')" class="w-full text-left px-4 py-2 text-sm text-gray-400" disabled>最佳适应 (开发中)</button>
             <button @click="onSelectOptimization('bottom-left')" class="w-full text-left px-4 py-2 text-sm text-gray-400" disabled>左下角 (开发中)</button>
           </div>

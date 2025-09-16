@@ -35,7 +35,7 @@ interface Placement {
  * 使用 Maximal Rectangles 变种算法寻找最优放置位置
  */
 export class GuillotineCuttingService {
-  private settings: CuttingSettings
+  protected settings: CuttingSettings
   private stepCounter: number = 0
   private cuttingSteps: CuttingStep[] = []
 
@@ -47,6 +47,15 @@ export class GuillotineCuttingService {
    * 计算单个材料的切割布局
    */
   calculateLayout(material: Material, items: CuttingItem[]): CuttingResult {
+    // 展开数量，每个数量作为单独的item处理
+    const expandedItems = this.expandItemsByQuantity(items)
+    return this.calculateLayoutFromExpandedItems(material, expandedItems)
+  }
+
+  /**
+   * 使用已展开的切割件计算布局（供子类使用）
+   */
+  protected calculateLayoutFromExpandedItems(material: Material, expandedItems: Array<CuttingItem & { originalIndex: number }>): CuttingResult {
     // 重置状态
     this.stepCounter = 0
     this.cuttingSteps = []
@@ -55,9 +64,6 @@ export class GuillotineCuttingService {
     
     // 根据料板方向调整料板尺寸
     const adjustedMaterial = this.adjustMaterialOrientation(material)
-    
-    // 展开数量，每个数量作为单独的item处理
-    const expandedItems = this.expandItemsByQuantity(items)
     
     // 按面积降序排序，大的优先放置
     expandedItems.sort((a, b) => (b.length * b.width) - (a.length * a.width))
@@ -157,7 +163,7 @@ export class GuillotineCuttingService {
   /**
    * 按数量展开切割件
    */
-  private expandItemsByQuantity(items: CuttingItem[]): Array<CuttingItem & { originalIndex: number }> {
+  protected expandItemsByQuantity(items: CuttingItem[]): Array<CuttingItem & { originalIndex: number }> {
     const expandedItems: Array<CuttingItem & { originalIndex: number }> = []
     
     items.forEach((item, originalIndex) => {
