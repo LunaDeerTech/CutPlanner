@@ -5,3 +5,6 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>
   export default component
 }
+
+// Build-time injected git short hash (or package version fallback)
+declare const __GIT_HASH__: string

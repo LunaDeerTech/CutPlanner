@@ -26,7 +26,15 @@
         <!-- 项目名称与版本 -->
         <div class="text-center">
           <h4 class="text-xl font-bold text-gray-900">CutPlanner</h4>
-          <p class="text-sm text-gray-500">版本 {{ projectInfo.version }}</p>
+          <p class="text-sm text-gray-500">
+            版本
+            <span v-if="/^[0-9a-f]{7}$/i.test(projectInfo.version)">
+              <a :href="commitUrl" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">{{ projectInfo.version }}</a>
+            </span>
+            <span v-else>
+              {{ projectInfo.version }}
+            </span>
+          </p>
         </div>
 
         <!-- 项目简介 -->
@@ -111,17 +119,26 @@ defineEmits<{
   close: []
 }>()
 
-// 项目信息数据
-const projectInfo = {
-  version: '0.1.0',
-  description: '板材切割规划工具 - 减少废料，提升效率',
-  author: '未央鹿鸣',
-  authorLink: 'https://zhangyuheng.lunadeer.cn',
-  license: 'GPL-3.0',
-  copyright: '© 2025 LunaDeerTech',
-  repository: 'https://github.com/LunaDeerTech/CutPlanner',
-  technologies: ['Vue 3', 'TypeScript', 'Vite', 'Tailwind CSS', 'Pinia']
-}
+  // 项目信息数据
+  // __GIT_HASH__ is injected at build time by Vite (short git hash or package version fallback)
+  const injectedHash = typeof __GIT_HASH__ !== 'undefined' ? __GIT_HASH__ : ''
+
+  const projectInfo = {
+    // Show the injected git short hash (7 chars) when available. Otherwise fall back to package version.
+    version: injectedHash || '0.1.0',
+    description: '板材切割规划工具 - 减少废料，提升效率',
+    author: '未央鹿鸣',
+    authorLink: 'https://zhangyuheng.lunadeer.cn',
+    license: 'GPL-3.0',
+    copyright: '© 2025 LunaDeerTech',
+    repository: 'https://github.com/LunaDeerTech/CutPlanner',
+    technologies: ['Vue 3', 'TypeScript', 'Vite', 'Tailwind CSS', 'Pinia']
+  }
+
+  // Construct commit URL if version looks like a 7-char git hash
+  const commitUrl = (/^[0-9a-f]{7}$/i.test(projectInfo.version))
+    ? `${projectInfo.repository}/commit/${projectInfo.version}`
+    : projectInfo.repository
 
 // 处理背景点击事件
 const handleBackdropClick = () => {
