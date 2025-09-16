@@ -55,7 +55,7 @@
       </div>
 
       <!-- 有结果时展示切割方案 -->
-      <div v-else class="w-full h-full p-4">
+      <div v-else class="w-full h-full p-4" id="cutting-results-container" data-container="cutting-results-container">
         <!-- 统计信息栏 -->
         <CuttingStatistics 
           v-if="cuttingResults && cuttingResults.length > 0" 

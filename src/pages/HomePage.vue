@@ -107,6 +107,7 @@ import SettingsModal from '@/components/SettingsModal.vue'
 import CuttingItemModal from '@/components/CuttingItemModal.vue'
 import ProjectInfoModal from '@/components/ProjectInfoModal.vue'
 import { CuttingPlannerService } from '@/services/cutting/CuttingPlannerService'
+import { exportAllCuttingPlansToPNG, generateCuttingReport } from '@/services/export'
 import type { CuttingItem, CuttingSettings } from '@/models/types'
 
 const materialStore = useMaterialStore()
@@ -253,22 +254,40 @@ const generateCuttingPlan = async () => {
 }
 
 // 导出功能
-const handleExportPNG = () => {
+const handleExportPNG = async () => {
   if (!cuttingStore.hasResults) {
     alert('请先生成切割方案')
     return
   }
-  // TODO: 导出PNG
-  alert('导出PNG功能开发中...')
+  
+  try {
+    console.log('开始导出PNG...')
+    // 尝试导出所有切割方案的PNG
+    const containerId = 'cutting-results-container'
+    await exportAllCuttingPlansToPNG(containerId, '切割方案')
+  } catch (error) {
+    console.error('导出PNG时发生错误:', error)
+    alert(`导出PNG失败: ${error instanceof Error ? error.message : '未知错误'}`)
+  }
 }
 
-const handleExportReport = () => {
+const handleExportReport = async () => {
   if (!cuttingStore.hasResults) {
     alert('请先生成切割方案')
     return
   }
-  // TODO: 导出报告
-  alert('导出报告功能开发中...')
+  
+  try {
+    console.log('开始生成切割报告...')
+    generateCuttingReport(
+      cuttingStore.results,
+      materialStore.materials,
+      cuttingStore.items
+    )
+  } catch (error) {
+    console.error('导出报告时发生错误:', error)
+    alert(`导出报告失败: ${error instanceof Error ? error.message : '未知错误'}`)
+  }
 }
 </script>
 
