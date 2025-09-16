@@ -44,49 +44,73 @@
       <!-- 允许旋转 -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">旋转</label>
-        <select
-          :value="settings.allowRotation ? 'true' : 'false'"
-          @change="updateAllowRotation"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="false">不允许旋转-始终按长度方向顺着木纹裁板</option>
-          <option value="true">允许旋转-相邻的两块板可能存在交错</option>
-        </select>
+        <div class="relative template-menu-container">
+          <button
+            @click="showRotationMenu = !showRotationMenu"
+            class="w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white flex justify-between items-center"
+          >
+            <span class="text-sm text-gray-700">{{ settings.allowRotation ? '允许旋转-相邻的两块板可能存在交错' : '不允许旋转-始终按长度方向顺着木纹裁板' }}</span>
+            <svg class="w-4 h-4 ml-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+
+          <div v-if="showRotationMenu" class="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-10">
+            <button @click="onSelectRotation(false)" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">不允许旋转-始终按长度方向顺着木纹裁板</button>
+            <button @click="onSelectRotation(true)" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">允许旋转-相邻的两块板可能存在交错</button>
+          </div>
+        </div>
       </div>
       
       <!-- 料板方向 -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">料板方向</label>
-        <select
-          :value="settings.materialOrientation"
-          @change="updateMaterialOrientation"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option :value="MaterialOrientation.VERTICAL">竖向 - 料板高度大于宽度</option>
-          <option :value="MaterialOrientation.HORIZONTAL">横向 - 料板宽度大于高度</option>
-        </select>
+        <div class="relative template-menu-container">
+          <button
+            @click="showOrientationMenu = !showOrientationMenu"
+            class="w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white flex justify-between items-center"
+          >
+            <span class="text-sm text-gray-700">{{ settings.materialOrientation === MaterialOrientation.VERTICAL ? '竖向 - 料板高度大于宽度' : '横向 - 料板宽度大于高度' }}</span>
+            <svg class="w-4 h-4 ml-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+
+          <div v-if="showOrientationMenu" class="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-10">
+            <button @click="onSelectOrientation(MaterialOrientation.VERTICAL)" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">竖向 - 料板高度大于宽度</button>
+            <button @click="onSelectOrientation(MaterialOrientation.HORIZONTAL)" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">横向 - 料板宽度大于高度</button>
+          </div>
+        </div>
       </div>
       
       <!-- 算法选择 -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">优化算法</label>
-        <select
-          :value="settings.optimizationStrategy"
-          @change="updateOptimizationStrategy"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="first-fit">原点适应</option>
-          <option value="best-fit" disabled>最佳适应 (开发中)</option>
-          <option value="bottom-left" disabled>左下角 (开发中)</option>
-          <option value="genetic" disabled>遗传算法 (开发中)</option>
-        </select>
+        <div class="relative template-menu-container">
+          <button
+            @click="showOptimizationMenu = !showOptimizationMenu"
+            class="w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white flex justify-between items-center"
+          >
+            <span class="text-sm text-gray-700">{{ settings.optimizationStrategy === 'first-fit' ? '原点适应' : settings.optimizationStrategy }}</span>
+            <svg class="w-4 h-4 ml-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+
+          <div v-if="showOptimizationMenu" class="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-10">
+            <button @click="onSelectOptimization('first-fit')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">原点适应</button>
+            <button @click="onSelectOptimization('best-fit')" class="w-full text-left px-4 py-2 text-sm text-gray-400" disabled>最佳适应 (开发中)</button>
+            <button @click="onSelectOptimization('bottom-left')" class="w-full text-left px-4 py-2 text-sm text-gray-400" disabled>左下角 (开发中)</button>
+            <button @click="onSelectOptimization('genetic')" class="w-full text-left px-4 py-2 text-sm text-gray-400" disabled>遗传算法 (开发中)</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
+import { defineProps, defineEmits, ref, onMounted, onUnmounted } from 'vue'
 import type { CuttingSettings } from '@/models/types'
 import { MaterialOrientation } from '@/models/types'
 
@@ -113,18 +137,41 @@ const updateMargin = (event: Event) => {
   emit('updateSettings', { margin: value })
 }
 
-const updateAllowRotation = (event: Event) => {
-  const target = event.target as HTMLSelectElement
-  emit('updateSettings', { allowRotation: target.value === 'true' })
+// Dropdown state and helpers (v-if based dropdowns similar to TemplateDropdownMenu.vue)
+const showRotationMenu = ref(false)
+const showOrientationMenu = ref(false)
+const showOptimizationMenu = ref(false)
+
+const onSelectRotation = (value: boolean) => {
+  showRotationMenu.value = false
+  emit('updateSettings', { allowRotation: value })
 }
 
-const updateMaterialOrientation = (event: Event) => {
-  const target = event.target as HTMLSelectElement
-  emit('updateSettings', { materialOrientation: target.value as MaterialOrientation })
+const onSelectOrientation = (value: MaterialOrientation) => {
+  showOrientationMenu.value = false
+  emit('updateSettings', { materialOrientation: value })
 }
 
-const updateOptimizationStrategy = (event: Event) => {
-  const target = event.target as HTMLSelectElement
-  emit('updateSettings', { optimizationStrategy: target.value as CuttingSettings['optimizationStrategy'] })
+const onSelectOptimization = (value: CuttingSettings['optimizationStrategy']) => {
+  showOptimizationMenu.value = false
+  emit('updateSettings', { optimizationStrategy: value })
 }
+
+// click outside handler to close menus
+const handleClickOutside = (event: Event) => {
+  const target = event.target as Element
+  if (!target.closest('.template-menu-container')) {
+    showRotationMenu.value = false
+    showOrientationMenu.value = false
+    showOptimizationMenu.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
