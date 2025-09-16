@@ -43,21 +43,45 @@
       
       <!-- 允许旋转 -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">旋转</label>
+        <div class="flex items-center mb-2">
+          <label class="text-sm font-medium text-gray-700">旋转</label>
+          <div
+            class="ml-2 relative"
+            @mouseenter="showRotationTip = true"
+            @mouseleave="showRotationTip = false"
+          >
+            <!-- info icon -->
+            <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+
+            <div v-if="showRotationTip" class="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 z-20 flex items-center pointer-events-none">
+              <!-- arrow pointing left -->
+              <svg class="w-2 h-3 text-gray-800 mr-1" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M6 0 L0 5 L6 10 Z" fill="currentColor"></path>
+              </svg>
+              <div class="bg-gray-800 text-white text-sm rounded py-2 px-3 max-w-2xl min-w-[220px] text-left leading-tight whitespace-normal">
+                固定默认方向可以保证目标板始终按照特定方向排版，适合对木纹方向有要求的场景；自适应旋转则允许按照算法设计将部分目标板旋转90°以提高利用率。
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="relative template-menu-container">
           <button
             @click="showRotationMenu = !showRotationMenu"
             class="w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white flex justify-between items-center"
           >
-            <span class="text-sm text-gray-700">{{ settings.allowRotation ? '允许旋转-相邻的两块板可能存在交错' : '不允许旋转-始终按长度方向顺着木纹裁板' }}</span>
+            <span class="text-sm text-gray-700">{{ settings.allowRotation ? '自适应旋转' : '固定方向' }}</span>
             <svg class="w-4 h-4 ml-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
           </button>
 
           <div v-if="showRotationMenu" class="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-10">
-            <button @click="onSelectRotation(false)" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">不允许旋转-始终按长度方向顺着木纹裁板</button>
-            <button @click="onSelectRotation(true)" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">允许旋转-相邻的两块板可能存在交错</button>
+            <button @click="onSelectRotation(false)" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">固定方向</button>
+            <button @click="onSelectRotation(true)" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">自适应旋转</button>
           </div>
         </div>
       </div>
@@ -70,15 +94,15 @@
             @click="showOrientationMenu = !showOrientationMenu"
             class="w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white flex justify-between items-center"
           >
-            <span class="text-sm text-gray-700">{{ settings.materialOrientation === MaterialOrientation.VERTICAL ? '竖向 - 料板高度大于宽度' : '横向 - 料板宽度大于高度' }}</span>
+            <span class="text-sm text-gray-700">{{ settings.materialOrientation === MaterialOrientation.VERTICAL ? '竖向' : '横向' }}</span>
             <svg class="w-4 h-4 ml-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
           </button>
 
           <div v-if="showOrientationMenu" class="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-10">
-            <button @click="onSelectOrientation(MaterialOrientation.VERTICAL)" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">竖向 - 料板高度大于宽度</button>
-            <button @click="onSelectOrientation(MaterialOrientation.HORIZONTAL)" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">横向 - 料板宽度大于高度</button>
+            <button @click="onSelectOrientation(MaterialOrientation.VERTICAL)" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">竖向</button>
+            <button @click="onSelectOrientation(MaterialOrientation.HORIZONTAL)" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">横向</button>
           </div>
         </div>
       </div>
@@ -141,6 +165,7 @@ const updateMargin = (event: Event) => {
 const showRotationMenu = ref(false)
 const showOrientationMenu = ref(false)
 const showOptimizationMenu = ref(false)
+const showRotationTip = ref(false)
 
 const onSelectRotation = (value: boolean) => {
   showRotationMenu.value = false
