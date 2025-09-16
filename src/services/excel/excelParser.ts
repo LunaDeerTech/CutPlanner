@@ -247,6 +247,7 @@ const parseRowData = (
     width,
     quantity: Math.floor(quantity), // 数量必须是整数
     name: nameValue ? String(nameValue).trim() : `项目${rowNumber}`,
+    rotatation: 'auto', // 默认自动旋转
   }
   
   return item
