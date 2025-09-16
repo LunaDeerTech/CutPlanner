@@ -1,5 +1,6 @@
 import type { Material, CuttingItem, CuttingResult, CuttingSettings } from '@/models/types'
 import { FirstFitCuttingService } from './FirstFitCuttingService'
+import { GuillotineCuttingService } from './GuillotineCuttingService'
 
 /**
  * Main cutting planner service that coordinates different cutting algorithms
@@ -41,18 +42,21 @@ export class CuttingPlannerService {
       case 'first-fit':
         return this.calculateFirstFitLayoutUnlimited(materials, items, selectedMaterial)
       
+      case 'guillotine':
+        return this.calculateGuillotineLayoutUnlimited(materials, items, selectedMaterial)
+      
       case 'best-fit':
-        throw new Error('最佳适应算法尚未实现，请选择"首次适应"算法')
+        throw new Error('最佳适应算法尚未实现，请选择"首次适应"或"断头台"算法')
       
       case 'bottom-left':
-        throw new Error('左下角算法尚未实现，请选择"首次适应"算法')
+        throw new Error('左下角算法尚未实现，请选择"首次适应"或"断头台"算法')
       
       case 'genetic':
-        throw new Error('遗传算法尚未实现，请选择"首次适应"算法')
+        throw new Error('遗传算法尚未实现，请选择"首次适应"或"断头台"算法')
       
       default:
-        console.warn(`未知的优化策略: ${this.settings.optimizationStrategy}，使用首次适应算法`)
-        return this.calculateFirstFitLayoutUnlimited(materials, items, selectedMaterial)
+        console.warn(`未知的优化策略: ${this.settings.optimizationStrategy}，使用断头台算法`)
+        return this.calculateGuillotineLayoutUnlimited(materials, items, selectedMaterial)
     }
   }
 
@@ -90,6 +94,62 @@ export class CuttingPlannerService {
       if (result.cuts.length === 0) {
         // No items could be placed on this sheet
         // This might happen if remaining items are too large
+        console.warn('无法在当前料板上放置任何项目，可能存在过大的切割项目')
+        break
+      }
+      
+      results.push(result)
+      
+      // Remove successfully placed items from remaining items
+      this.updateRemainingItems(remainingItems, result)
+      
+      sheetNumber++
+      
+      // Safety check to prevent infinite loops
+      if (sheetNumber > 100) {
+        console.error('使用料板数量超过100张，停止计算以防无限循环')
+        break
+      }
+    }
+
+    // Add summary information
+    this.addSummaryInformation(results, items)
+
+    return results
+  }
+
+  /**
+   * Calculate layout using Guillotine algorithm with unlimited materials
+   * Uses the minimum number of sheets from the selected material type
+   * This algorithm ensures that all cuts follow the guillotine constraint (straight cuts from edge to edge)
+   */
+  private calculateGuillotineLayoutUnlimited(
+    _materials: Material[],
+    items: CuttingItem[],
+    selectedMaterial: Material
+  ): CuttingResult[] {
+    const results: CuttingResult[] = []
+    // Create a deep copy of items to avoid modifying the original cutting list
+    const remainingItems = items.map(item => ({ ...item }))
+
+    const chosenMaterial = selectedMaterial
+    
+    let sheetNumber = 1
+    
+    // Keep using new sheets until all items are placed
+    while (remainingItems.length > 0) {
+      // Create a new sheet of the selected material type
+      const currentSheet: Material = {
+        ...chosenMaterial,
+        id: `${chosenMaterial.id}_sheet_${sheetNumber}`,
+        name: `${chosenMaterial.name} - 第${sheetNumber}张`
+      }
+
+      const cuttingService = new GuillotineCuttingService(this.settings)
+      const result = cuttingService.calculateLayout(currentSheet, remainingItems)
+      
+      if (result.cuts.length === 0) {
+        // No items could be placed on this sheet
         console.warn('无法在当前料板上放置任何项目，可能存在过大的切割项目')
         break
       }

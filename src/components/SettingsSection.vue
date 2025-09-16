@@ -115,17 +115,18 @@
             @click="showOptimizationMenu = !showOptimizationMenu"
             class="w-full text-left px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white flex justify-between items-center"
           >
-            <span class="text-sm text-gray-700">{{ settings.optimizationStrategy === 'first-fit' ? '原点适应' : settings.optimizationStrategy }}</span>
+            <span class="text-sm text-gray-700">{{ getOptimizationDisplayName(settings.optimizationStrategy) }}</span>
             <svg class="w-4 h-4 ml-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
           </button>
 
           <div v-if="showOptimizationMenu" class="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-10">
+            <button @click="onSelectOptimization('guillotine')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">断头台算法 (推荐)</button>
+            <button @click="onSelectOptimization('genetic')" class="w-full text-left px-4 py-2 text-sm text-gray-400" disabled>遗传算法 (开发中)</button>
             <button @click="onSelectOptimization('first-fit')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">原点适应</button>
             <button @click="onSelectOptimization('best-fit')" class="w-full text-left px-4 py-2 text-sm text-gray-400" disabled>最佳适应 (开发中)</button>
             <button @click="onSelectOptimization('bottom-left')" class="w-full text-left px-4 py-2 text-sm text-gray-400" disabled>左下角 (开发中)</button>
-            <button @click="onSelectOptimization('genetic')" class="w-full text-left px-4 py-2 text-sm text-gray-400" disabled>遗传算法 (开发中)</button>
           </div>
         </div>
       </div>
@@ -180,6 +181,24 @@ const onSelectOrientation = (value: MaterialOrientation) => {
 const onSelectOptimization = (value: CuttingSettings['optimizationStrategy']) => {
   showOptimizationMenu.value = false
   emit('updateSettings', { optimizationStrategy: value })
+}
+
+// Get display name for optimization strategy
+const getOptimizationDisplayName = (strategy: CuttingSettings['optimizationStrategy']) => {
+  switch (strategy) {
+    case 'first-fit':
+      return '原点适应'
+    case 'guillotine':
+      return '断头台算法'
+    case 'best-fit':
+      return '最佳适应'
+    case 'bottom-left':
+      return '左下角'
+    case 'genetic':
+      return '遗传算法'
+    default:
+      return strategy
+  }
 }
 
 // click outside handler to close menus

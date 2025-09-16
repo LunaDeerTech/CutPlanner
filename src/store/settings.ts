@@ -11,7 +11,7 @@ export const useSettingsStore = defineStore('settings', () => {
     margin: 5, // 5mm default margin
     allowRotation: true,
     materialOrientation: MaterialOrientation.VERTICAL, // 默认竖向
-    optimizationStrategy: 'first-fit' // 使用已实现的算法
+    optimizationStrategy: 'guillotine' // 使用更准确的断头台算法作为默认
   }
 
   const settings = ref<CuttingSettings>({ ...defaultSettings })
