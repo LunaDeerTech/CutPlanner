@@ -89,21 +89,94 @@
 
     <!-- 旋转方向列 -->
     <td class="px-6 py-4 whitespace-nowrap">
-      <div v-if="isEditing">
-        <select
-          v-model="editForm.rotatation"
-          class="w-24 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+      <div v-if="isEditing" class="flex items-center rotation-menu-container relative">
+        <button
+          type="button"
+          ref="rotationBtn"
+          @click.stop="toggleRotationMenu()"
+          class="flex items-center w-40 justify-between px-3 py-1 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition-colors"
         >
-          <option value="auto">自动（跟随算法）</option>
-          <option value="fixed-default">固定-默认</option>
-          <option value="fixed-rotate">固定-旋转90°</option>
-        </select>
+          <div class="flex items-center">
+            <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 3v4h-4M9 21v-4h4"/>
+            </svg>
+            <span class="truncate">
+              <span v-if="editForm.rotatation === 'auto'">自动（跟随算法）</span>
+              <span v-else-if="editForm.rotatation === 'fixed-default'">固定-默认</span>
+              <span v-else-if="editForm.rotatation === 'fixed-rotate'">固定-旋转90°</span>
+            </span>
+          </div>
+          <svg class="w-4 h-4 text-gray-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+
+        <teleport to="body" v-if="showRotationMenu">
+          <div
+            ref="rotationMenu"
+            :style="menuStyle"
+            class="w-40 bg-white border border-gray-200 rounded-md shadow-lg"
+          >
+          <button
+            @click.prevent="setRotation('auto')"
+            class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+          >
+            <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v4m0 12v4m9-9h-4M7 12H3"/>
+            </svg>
+            自动（跟随算法）
+          </button>
+          <button
+            @click.prevent="setRotation('fixed-default')"
+            class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+          >
+            <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M10 11v6m4-6v6"/>
+            </svg>
+            固定-默认
+          </button>
+          <button
+            @click.prevent="setRotation('fixed-rotate')"
+            class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+          >
+            <svg class="w-4 h-4 mr-2 text-orange-500 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M10 11v6m4-6v6"/>
+            </svg>
+            固定-旋转90°
+          </button>
+          </div>
+        </teleport>
       </div>
       <div v-else class="text-sm text-gray-900">
-        <span v-if="item.rotatation === 'auto'" class="text-blue-600">自动（跟随算法）</span>
-        <span v-else-if="item.rotatation === 'fixed-default'" class="text-green-600">固定-默认</span>
-        <span v-else-if="item.rotatation === 'fixed-rotate'" class="text-orange-600">固定-旋转90°</span>
-        <span v-else class="text-gray-400">未设置</span>
+        <template v-if="item.rotatation === 'auto'">
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v4m0 12v4m9-9h-4M7 12H3m12.364-6.364l-2.828 2.828M9.464 14.536l-2.828 2.828M20.485 20.485l-2.828-2.828M6.343 6.343L3.515 3.515"/>
+            </svg>
+            自动
+          </span>
+        </template>
+        <template v-else-if="item.rotatation === 'fixed-default'">
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-800">
+            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M10 11v6m4-6v6"/>
+            </svg>
+            固定
+          </span>
+        </template>
+        <template v-else-if="item.rotatation === 'fixed-rotate'">
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-50 text-orange-800">
+            <svg class="w-3 h-3 mr-1 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M10 11v6m4-6v6"/>
+            </svg>
+            旋转90°
+          </span>
+        </template>
+        <template v-else>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+            未设置
+          </span>
+        </template>
       </div>
     </td>
 
@@ -156,7 +229,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { validateDimension, validatePositiveNumber } from '@/utils/validation'
 import type { CuttingItem } from '@/models/types'
 
@@ -217,6 +290,86 @@ watch(() => props.isEditing, (isEditing) => {
       quantity: ''
     }
   }
+})
+
+// 旋转下拉菜单显示状态（用于 v-if 菜单）
+const showRotationMenu = ref(false)
+
+// refs to measure placement
+const rotationBtn = ref<HTMLElement | null>(null)
+const rotationMenu = ref<HTMLElement | null>(null)
+const menuAbove = ref(false)
+const menuStyle = ref<Record<string, string>>({})
+
+const setRotation = (value: string) => {
+  editForm.value.rotatation = value as any
+  showRotationMenu.value = false
+}
+
+// 切换菜单并计算放置位置（如果下面空间不足则置于上方）
+const toggleRotationMenu = async () => {
+  showRotationMenu.value = !showRotationMenu.value
+  if (showRotationMenu.value) {
+    await nextTick()
+    const btnRect = rotationBtn.value?.getBoundingClientRect()
+    if (!btnRect) return
+
+    // set initial menu width equal to button to get stable measurement
+    const scrollX = window.scrollX || window.pageXOffset || 0
+    const scrollY = window.scrollY || window.pageYOffset || 0
+    menuStyle.value = {
+      position: 'absolute',
+      left: `${btnRect.left + scrollX}px`,
+      top: `${btnRect.bottom + 4 + scrollY}px`,
+      width: `${btnRect.width}px`,
+      zIndex: '1000'
+    }
+
+    // allow DOM to render with the width before measuring height
+    await nextTick()
+    const menuEl = rotationMenu.value
+    const menuHeight = menuEl ? menuEl.offsetHeight : 0
+
+    const spaceBelow = window.innerHeight - btnRect.bottom
+    menuAbove.value = spaceBelow < (menuHeight + 8)
+
+    // compute final left (prevent right overflow)
+    let left = btnRect.left
+    if (left + btnRect.width + 8 > window.innerWidth) {
+      left = Math.max(8, window.innerWidth - btnRect.width - 8)
+    }
+
+    const top = menuAbove.value ? (btnRect.top - menuHeight - 4) : (btnRect.bottom + 4)
+
+    menuStyle.value = {
+      position: 'absolute',
+      left: `${left + scrollX}px`,
+      top: `${top + scrollY}px`,
+      width: `${btnRect.width}px`,
+      zIndex: '1000'
+    }
+  } else {
+    // closing, clear styles
+    menuStyle.value = {}
+  }
+}
+
+// 点击外部关闭旋转菜单
+const handleClickOutsideRotation = (event: Event) => {
+  const target = event.target as Element
+  // if click is inside button or inside menu, ignore
+  if (rotationBtn.value?.contains(target) || rotationMenu.value?.contains(target)) {
+    return
+  }
+  showRotationMenu.value = false
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutsideRotation)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutsideRotation)
 })
 
 // 验证字段
