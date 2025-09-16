@@ -104,20 +104,46 @@
           </div>
 
           <!-- 材料类型 -->
-          <div>
+          <div class="material-type-container relative">
             <label for="materialType" class="block text-sm font-medium text-gray-700 mb-2">
               材料类型
             </label>
-            <select
-              id="materialType"
-              v-model="form.materialType"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            <button
+              type="button"
+              @click="showMaterialTypeMenu = !showMaterialTypeMenu"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white hover:bg-gray-50 flex items-center justify-between"
             >
-              <option value="">选择材料类型...</option>
-              <option v-for="type in materialTypes" :key="type" :value="type">
+              <span class="text-gray-900">
+                {{ form.materialType || '选择材料类型...' }}
+              </span>
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            
+            <!-- 下拉菜单 -->
+            <div 
+              v-if="showMaterialTypeMenu" 
+              class="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto"
+            >
+              <button
+                type="button"
+                @click="selectMaterialType('')"
+                class="w-full text-left px-3 py-2 text-sm text-gray-500 hover:bg-gray-50"
+              >
+                选择材料类型...
+              </button>
+              <button
+                v-for="type in materialTypes"
+                :key="type"
+                type="button"
+                @click="selectMaterialType(type)"
+                class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                :class="{ 'bg-blue-50 text-blue-700': form.materialType === type }"
+              >
                 {{ type }}
-              </option>
-            </select>
+              </button>
+            </div>
           </div>
 
           <!-- 按钮区域 -->
@@ -163,7 +189,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted } from 'vue'
+import { ref, computed, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMaterialStore } from '@/store/material'
 import { useSettingsStore } from '@/store/settings'
@@ -193,6 +219,7 @@ const errors = reactive({
 })
 
 const isLoading = ref(false)
+const showMaterialTypeMenu = ref(false)
 const materialTypes = MATERIAL_TYPES
 
 // Check if we're in edit mode
@@ -208,6 +235,14 @@ onMounted(() => {
     form.thickness = material.thickness.toString()
     form.materialType = material.materialType || ''
   }
+  
+  // Add click outside listener
+  document.addEventListener('click', handleClickOutside)
+})
+
+// Cleanup event listener
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 
 // Computed
@@ -222,6 +257,19 @@ const isFormValid = computed(() => {
 })
 
 // Methods
+const selectMaterialType = (type: string) => {
+  form.materialType = type
+  showMaterialTypeMenu.value = false
+}
+
+// 点击外部关闭菜单
+const handleClickOutside = (event: Event) => {
+  const target = event.target as Element
+  if (!target.closest('.material-type-container')) {
+    showMaterialTypeMenu.value = false
+  }
+}
+
 const handleNumberInput = (field: 'width' | 'height' | 'thickness', event: Event) => {
   const target = event.target as HTMLInputElement
   const formatted = formatNumberInput(target.value, true)
